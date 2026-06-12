@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spatio-Temporal Traffic Forecasting (ST-GNN) — Harjasdeep Singh</title>
+  <meta name="description" content="A3T-GCN model forecasting hourly traffic speeds across 454 loop detectors in Berlin's open VMZ dataset." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <script src="../assets/main.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">harjasdeep.singh</a>
+    <div class="nav-links">
+      <a href="../index.html#projects">Projects</a>
+      <a href="../index.html#contact">Contact</a>
+      <button id="theme-toggle" aria-label="Toggle theme">☾</button>
+    </div>
+  </div>
+</nav>
+
+<main class="case container">
+  <a class="back" href="../index.html#projects">← back to projects</a>
+  <h1>Spatio-Temporal Traffic Forecasting with Graph Neural Networks</h1>
+  <p class="case-sub">
+    Forecasting hourly traffic speeds across Berlin's loop-detector network with an attention-based
+    temporal graph convolutional network (A3T-GCN), built in PyTorch on the city's open VMZ dataset. <em>Ongoing.</em>
+    &nbsp;·&nbsp; <a href="https://github.com/HARDY1499/BerlinTrafficPrediction" target="_blank" rel="noopener">GitHub repo →</a>
+  </p>
+
+  <div class="case-facts">
+    <div class="fact"><b>454</b><span>loop detectors</span></div>
+    <div class="fact"><b>5,000+</b><span>monthly CSVs processed</span></div>
+    <div class="fact"><b>3 / 6 / 12 h</b><span>forecast horizons</span></div>
+    <div class="fact"><b>2 km</b><span>Gaussian-kernel edge threshold</span></div>
+  </div>
+
+  <h2>The problem</h2>
+  <p>
+    Traffic speed at one detector depends on what happened upstream an hour ago — the signal is
+    inherently both spatial and temporal. The project builds an A3T-GCN model to forecast hourly
+    speeds 3, 6, and 12 hours ahead across 454 detectors, benchmarked honestly against last-value,
+    historical-average, and per-node LSTM baselines, so any GNN gain is measured against the
+    strongest simple alternatives rather than a strawman.
+  </p>
+
+  <h2>Data pipeline: from 5,000+ raw CSVs to a clean tensor</h2>
+  <ul>
+    <li>Wrote the pipeline turning 5,000+ monthly CSVs into a <code>(T, N, F)</code> PyTorch tensor with a parallel validity mask.</li>
+    <li>Steps: quality filtering, short-gap forward-fill, seasonal-mean imputation, and cyclic time encoding — with the mask preserving which values are observed vs. imputed so the model never trains on fiction as if it were fact.</li>
+  </ul>
+
+  <div class="callout">
+    <p>
+      <strong>The bug worth telling:</strong> a silent extraction error had been reducing
+      a full year of usable data down to a single month — no exception, no warning, just a
+      quietly tiny dataset. Catching it required distrusting a pipeline that appeared to work.
+      It's the kind of failure that inflates validation metrics while gutting the model,
+      and the reason I now treat row counts as assertions, not log lines.
+    </p>
+  </div>
+
+  <h2>Building the spatial graph</h2>
+  <ul>
+    <li>Projected detectors into Berlin UTM with GeoPandas, computed pairwise distances with SciPy, and weighted edges with a Gaussian kernel thresholded at 2 km.</li>
+    <li><strong>A modeling decision backed by data:</strong> chose detector-level over pole-level nodes after a correlation study showed sibling detectors on the same pole carry independent direction and lane signal — aggregating them would have thrown away real information.</li>
+  </ul>
+
+  <h2>Tech stack</h2>
+  <p>
+    <code>PyTorch</code> <code>PyTorch Geometric Temporal</code> <code>pandas</code>
+    <code>GeoPandas</code> <code>SciPy</code>
+  </p>
+
+  <div class="case-nav">
+    <a href="eurowings.html">← Prev: Eurowings Scheduling</a>
+    <a href="market-copilot.html">Next: Market Intelligence Copilot →</a>
+  </div>
+</main>
+
+<footer>
+  <div class="container">© 2026 Harjasdeep Singh Allahabadia</div>
+</footer>
+
+</body>
+</html>

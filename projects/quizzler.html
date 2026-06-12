@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quizzler — Real-Time Multiplayer Trivia Game — Harjasdeep Singh</title>
+  <meta name="description" content="Solo-built cross-platform real-time multiplayer trivia game: atomic Postgres matchmaking, WebSocket score sync, per-topic ELO ratings, and a fully procedural pixel-art and chiptune asset pipeline." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <script src="../assets/main.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">harjasdeep.singh</a>
+    <div class="nav-links">
+      <a href="../index.html#projects">Projects</a>
+      <a href="../index.html#contact">Contact</a>
+      <button id="theme-toggle" aria-label="Toggle theme">☾</button>
+    </div>
+  </div>
+</nav>
+
+<main class="case container">
+  <a class="back" href="../index.html#projects">← back to projects</a>
+  <h1>Quizzler — Real-Time Multiplayer Trivia</h1>
+  <p class="case-sub">
+    A spiritual successor to QuizUp: fast, head-to-head trivia wrapped in a deliberate
+    retro-arcade identity — pixel art, CRT scanlines, chiptune soundtrack, a custom pixel
+    mascot. Every layer built solo: product, UI, backend, data model, and the tooling
+    that generates the art and sound. <em>2026.</em>
+    &nbsp;·&nbsp; <a href="https://github.com/HARDY1499/quizzler" target="_blank" rel="noopener">GitHub repo →</a>
+  </p>
+
+  <div class="case-facts">
+    <div class="fact"><b>3</b><span>platforms, one codebase</span></div>
+    <div class="fact"><b>K=32</b><span>per-topic ELO rating</span></div>
+    <div class="fact"><b>100%</b><span>assets generated from code</span></div>
+    <div class="fact"><b>1</b><span>transaction settles a match</span></div>
+  </div>
+
+  <h2>The problem</h2>
+  <p>
+    Real-time multiplayer is the hard part of any trivia game: two players must be fairly
+    matched, see each other's scores update live, and end with a result that can't be
+    tampered with or lost to a dropped connection. On top of that, I wanted a distinct
+    visual identity without licensing assets or hand-pushing thousands of pixels.
+  </p>
+
+  <h2>Real-time multiplayer core</h2>
+  <ul>
+    <li><strong>Atomic matchmaking.</strong> Players enter a queue and are paired by a single Postgres RPC that stores the question set on the match row — eliminating the classic double-match race condition by design rather than by client coordination.</li>
+    <li><strong>Live score sync with graceful degradation.</strong> Scores broadcast over a Supabase Realtime channel (WebSockets), and every realtime listener has a polling fallback, so a flaky connection degrades instead of breaking the match.</li>
+    <li><strong>Authoritative settlement.</strong> A <code>submit_score</code> RPC settles the winner, updates ratings, and awards XP in one server-side transaction — no tampering, no partial writes.</li>
+  </ul>
+
+  <h2>Skill rating &amp; progression</h2>
+  <p>
+    Each topic carries an independent ELO rating (K=32), so strength in history is tracked
+    separately from sports. Scoring rewards both accuracy and speed (100 points plus a time
+    bonus), and an XP system drives progression. Keeping the rating math server-side keeps
+    it authoritative — the same transactional-integrity instinct that matters in any
+    production data system.
+  </p>
+
+  <h2>The procedural asset pipeline</h2>
+  <p>
+    Rather than hand-editing PNGs and WAVs, the entire look and sound of the game
+    regenerates from a script run:
+  </p>
+  <ul>
+    <li><strong>Sprites:</strong> Pillow renders pixel-art sprites, mascot expressions, and animation frames from ASCII grids and a palette dictionary.</li>
+    <li><strong>Audio:</strong> NumPy synthesizes the chiptune theme, battle loops, and sound effects from square/triangle/noise waveforms in an NES style.</li>
+  </ul>
+
+  <div class="callout">
+    <p>
+      <strong>Assets are code.</strong> Version-controlled, reproducible, and iterable —
+      changing the art direction means editing a palette dictionary, not re-drawing
+      every frame.
+    </p>
+  </div>
+
+  <h2>Data &amp; content</h2>
+  <p>
+    A normalized Postgres schema with row-level security backs anonymous (username-only)
+    auth. Content comes from both an external trivia API and a built-in quiz builder for
+    user-generated questions. Every release is gated by a verification step: TypeScript
+    compile plus web export must pass before anything ships.
+  </p>
+
+  <h2>Why it belongs next to the ML and OR work</h2>
+  <p>
+    The threads connect: ELO is an iteratively-updated skill estimate under uncertainty,
+    the scoring system is incentive design, and every match emits structured outcome data
+    ready for fairness, retention, or difficulty-calibration analysis. Engineering-led,
+    but the decision-science instincts are the same.
+  </p>
+
+  <h2>Tech stack</h2>
+  <p>
+    <code>React Native (Expo)</code> <code>TypeScript</code> <code>Supabase</code>
+    <code>PostgreSQL</code> <code>Row-Level Security</code> <code>WebSockets</code>
+    <code>Python</code> <code>Pillow</code> <code>NumPy</code>
+  </p>
+
+  <div class="case-nav">
+    <a href="market-copilot.html">← Prev: Market Intelligence Copilot</a>
+    <a href="../index.html#projects">All projects →</a>
+  </div>
+</main>
+
+<footer>
+  <div class="container">© 2026 Harjasdeep Singh Allahabadia</div>
+</footer>
+
+</body>
+</html>
