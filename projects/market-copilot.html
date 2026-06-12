@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enterprise Market Intelligence Copilot — Harjasdeep Singh</title>
+  <meta name="description" content="Local-first LLM agent combining SQL generation and semantic search to answer enterprise market questions — LangGraph, Gemma, ChromaDB, FastAPI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <script src="../assets/main.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">harjasdeep.singh</a>
+    <div class="nav-links">
+      <a href="../index.html#projects">Projects</a>
+      <a href="../index.html#contact">Contact</a>
+      <button id="theme-toggle" aria-label="Toggle theme">☾</button>
+    </div>
+  </div>
+</nav>
+
+<main class="case container">
+  <a class="back" href="../index.html#projects">← back to projects</a>
+  <h1>Enterprise Market Intelligence Copilot</h1>
+  <p class="case-sub">
+    A local-first LLM analyst that answers enterprise market questions mixing hard pipeline
+    numbers (TAM, SAM, MRR) with qualitative context on competitor moves and regulatory shifts —
+    no cloud APIs, everything runs on-device.
+    &nbsp;·&nbsp; <a href="https://github.com/HARDY1499/Enterprise-Market-Intelligence-Copilot-v2" target="_blank" rel="noopener">GitHub repo →</a>
+  </p>
+
+  <div class="case-facts">
+    <div class="fact"><b>ReAct agent</b><span>LangGraph</span></div>
+    <div class="fact"><b>2 tools</b><span>SQL generator + semantic search</span></div>
+    <div class="fact"><b>100% local</b><span>Ollama-served models</span></div>
+  </div>
+
+  <h2>Architecture</h2>
+  <ul>
+    <li><strong>Agent core:</strong> a LangGraph ReAct agent that decides per question whether to query structured data, search unstructured context, or chain both.</li>
+    <li><strong>Tool 1 — SQL generator</strong> over a SQLite schema holding the hard numbers: TAM, SAM, MRR, pipeline figures.</li>
+    <li><strong>Tool 2 — semantic search</strong> over a ChromaDB vector store (<code>all-MiniLM-L6-v2</code> embeddings) holding qualitative material on competitors and regulation.</li>
+    <li><strong>Serving:</strong> FastAPI deployment, models served locally via Ollama.</li>
+  </ul>
+
+  <h2>The debugging story: when the model avoids its own tools</h2>
+  <p>
+    v1 ran on Llama 3.1 (8B) and hallucinated numbers. Tracing the agent's behavior revealed
+    a <strong>tool-avoidance pattern</strong>: rather than calling the SQL tool, the model was
+    fabricating TAM and MRR totals directly in its answers. The fix wasn't a bigger prompt —
+    it was switching to Gemma, whose native function-calling made tool use the path of least
+    resistance. The made-up numbers stopped, and the agent began chaining SQL and vector
+    search reliably.
+  </p>
+
+  <div class="callout">
+    <p>
+      The lesson: LLM hallucination is often an <strong>interaction failure between model and
+      scaffolding</strong>, not raw model weakness. Diagnosing it means reading traces, not
+      just outputs.
+    </p>
+  </div>
+
+  <h2>Making local-first actually reproducible</h2>
+  <ul>
+    <li>Diagnosed a Metal Performance Shaders (MPS) deadlock in the HuggingFace embedding pipeline on Apple Silicon and pinned embeddings to a CPU backend — fixing the hang and making the FastAPI deployment reproducible across machines.</li>
+    <li>Moved prompt-level guardrails into the system structurally: the prebuilt ReAct node plus per-tool schema docstrings, rather than fragile instructions buried in a mega-prompt.</li>
+  </ul>
+
+  <h2>Tech stack</h2>
+  <p>
+    <code>Python</code> <code>LangGraph</code> <code>Gemma / Llama 3.1</code> <code>Ollama</code>
+    <code>ChromaDB</code> <code>FastAPI</code> <code>SQLite</code>
+  </p>
+
+  <div class="case-nav">
+    <a href="berlin-stgnn.html">← Prev: Berlin Traffic ST-GNN</a>
+    <a href="quizzler.html">Next: Quizzler →</a>
+  </div>
+</main>
+
+<footer>
+  <div class="container">© 2026 Harjasdeep Singh Allahabadia</div>
+</footer>
+
+</body>
+</html>
