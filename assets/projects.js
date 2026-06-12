@@ -57,13 +57,13 @@ const PROJECTS = [
     title: "Quizzler — Real-Time Multiplayer Trivia Game",
     status: "Solo build · 2026",
     headline:
-      "Cross-platform (iOS / Android / web) head-to-head trivia with a retro arcade identity: atomic server-side matchmaking, live score sync over WebSockets, per-topic ELO ratings — with sprites and chiptune audio generated procedurally in Python.",
+      "Cross-platform (iOS / Android / web) head-to-head trivia with a retro arcade identity: atomic server-side matchmaking, live score sync over WebSockets, and per-topic ELO ratings settled transactionally on the server.",
     metrics: [
       { value: "3 platforms", label: "one codebase" },
       { value: "ELO K=32", label: "per-topic skill rating" },
-      { value: "2 generators", label: "sprites + chiptune (Python)" },
+      { value: "1 transaction", label: "settles ratings + XP" },
     ],
-    tags: ["React Native (Expo)", "TypeScript", "Supabase", "PostgreSQL", "Python", "Pillow / NumPy"],
+    tags: ["React Native (Expo)", "TypeScript", "Supabase", "PostgreSQL", "WebSockets"],
     page: "projects/quizzler.html",
     github: "https://github.com/HARDY1499/quizzler",
   },
