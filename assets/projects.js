@@ -84,7 +84,7 @@ const PROJECTS = [
       <p class="headline">${p.headline}</p>
       <div class="metrics">${metrics}</div>
       <div class="tags">${tags}</div>
-      ${p.page ? `<span class="card-link">Read case study →</span>` : ""}`;
+      ${p.page ? `<span class="card-link">Read case study =></span>` : ""}`;
     return p.page
       ? `<a class="project-card" href="${p.page}">${inner}</a>`
       : `<div class="project-card">${inner}</div>`;

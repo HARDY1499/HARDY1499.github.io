@@ -5,142 +5,320 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Harjasdeep Singh — ML, Optimization & Data Engineering</title>
   <meta name="description" content="M.Sc. Data Analytics & Decision Science at RWTH Aachen. Machine learning, mathematical optimization, and LLM agent systems, backed by 3 years of production full-stack and data engineering." />
+  
+  <!-- Retro pixel and monospace fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=5" />
-  <script src="assets/main.js?v=5"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="assets/main.js"></script>
 </head>
-<body>
+<body class="crt-active" data-theme="green">
 
-<nav>
-  <div class="nav-inner">
-    <a class="nav-logo" href="#">harjasdeep.singh</a>
-    <div class="nav-links">
-      <a href="#projects">Projects</a>
-      <a href="#experience">Experience</a>
-      <a href="#skills">Skills</a>
-      <a href="#contact">Contact</a>
-      <button id="theme-toggle" aria-label="Toggle theme">☾</button>
+  <!-- CRT Overlay for scanlines and phosphor glow -->
+  <div class="crt-overlay"></div>
+
+  <!-- Screensaver Canvas (hidden by default, activates on idle) -->
+  <canvas id="screensaver-canvas"></canvas>
+
+  <!-- Retro System Menu Bar -->
+  <nav class="system-menu-bar">
+    <div class="menu-item dropdown">
+      <span class="menu-title">◆</span>
+      <div class="dropdown-content">
+        <a href="#" id="menu-about-trigger">About This System...</a>
+        <hr>
+        <span class="dropdown-label">System 1.0</span>
+      </div>
+    </div>
+    <div class="menu-item dropdown">
+      <span class="menu-title">File</span>
+      <div class="dropdown-content">
+        <a href="javascript:window.print()">Print Resume</a>
+        <a href="mailto:your.email@example.com">Send Email</a>
+      </div>
+    </div>
+    <div class="menu-item dropdown">
+      <span class="menu-title">View</span>
+      <div class="dropdown-content">
+        <a href="#" class="theme-select active" data-theme="green">Matrix Green (CRT)</a>
+        <a href="#" class="theme-select" data-theme="amber">Amber Phosphor</a>
+        <a href="#" class="theme-select" data-theme="classic">Classic Monochrome</a>
+        <hr>
+        <a href="#" id="menu-toggle-scanlines">Disable Scanlines</a>
+      </div>
+    </div>
+    <div class="menu-item dropdown">
+      <span class="menu-title">Special</span>
+      <div class="dropdown-content">
+        <a href="#" id="menu-run-screensaver">Run Screensaver</a>
+        <a href="#" id="menu-reset-windows">Reset Window Positions</a>
+      </div>
+    </div>
+    <div class="system-time" id="menu-clock">12:00:00 PM</div>
+  </nav>
+
+  <!-- About System Dialog Box (Modal) -->
+  <div id="about-dialog" class="mac-window dialog-box" style="display: none;">
+    <div class="mac-titlebar">
+      <div class="mac-titlebar-lines" style="margin-left: 0;"></div>
+      <span class="mac-title">About This System</span>
+      <div class="mac-titlebar-lines" style="margin-right: 0;"></div>
+    </div>
+    <div class="mac-content dialog-content">
+      <div class="dialog-body">
+        <div class="dialog-icon-wrapper">
+          <!-- Small pixel art computer representation -->
+          <svg class="pixel-computer-svg" viewBox="0 0 32 32" width="64" height="64">
+            <path d="M4,4 h24 v16 h-24 z" fill="none" stroke="currentColor" stroke-width="2"/>
+            <path d="M7,7 h18 v10 h-18 z" fill="none" stroke="currentColor" stroke-width="1"/>
+            <path d="M4,20 l-2,6 h28 l-2,-6 z" fill="none" stroke="currentColor" stroke-width="2"/>
+            <path d="M11,23 h10" fill="none" stroke="currentColor" stroke-width="2"/>
+            <rect x="8" y="10" width="3" height="3" fill="currentColor"/>
+            <rect x="21" y="10" width="3" height="3" fill="currentColor"/>
+            <path d="M12,15 q4,-2 8,0" fill="none" stroke="currentColor" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="dialog-text">
+          <h2>System 1.0</h2>
+          <p>Vintage CRT Portfolio System</p>
+          <p>Designed for Harjasdeep Singh Allahabadia</p>
+          <hr class="pixel-divider">
+          <p class="dialog-stat">RAM: 128K (88K free)</p>
+          <p class="dialog-stat">Co-processor: Gemini AI 3.5</p>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button class="btn-retro" id="close-about-dialog">OK</button>
+      </div>
     </div>
   </div>
-</nav>
 
-<header class="hero container">
-  <img class="hero-photo" src="assets/profile.jpg" alt="Portrait of Harjasdeep Singh Allahabadia" width="480" height="480" />
-  <span class="kicker">// machine learning · optimization · data engineering</span>
-  <h1>Harjasdeep Singh Allahabadia</h1>
-  <p class="tagline">
-    M.Sc. student in <strong>Data Analytics &amp; Decision Science</strong> at RWTH Aachen
-    (Grade 1.5), with <strong>3 years of production engineering</strong> at
-    Publicis Sapient — full-stack development with data-engineering work. Current work spans graph neural networks, LLM agent systems,
-    and large-scale mathematical optimization.
-  </p>
-  <div class="hero-meta">
-    <span>📍 Aachen, Germany</span>
-    <span>🎓 RWTH Aachen · expected Sep 2027</span>
-    <span>💼 Seeking WS26–27 internship</span>
-  </div>
-  <div class="hero-cta">
-    <a class="btn btn-primary" href="#projects">View projects</a>
-    <a class="btn btn-ghost" href="https://github.com/HARDY1499" target="_blank" rel="noopener">GitHub</a>
-    <a class="btn btn-ghost" href="https://linkedin.com/in/harjasdeep14" target="_blank" rel="noopener">LinkedIn</a>
-  </div>
-</header>
+  <!-- Main Desktop Space -->
+  <main id="desktop">
 
-<section id="projects" class="container">
-  <p class="section-label">selected work</p>
-  <h2>Projects</h2>
-  <div class="project-grid" id="project-grid"><!-- rendered from assets/projects.js --></div>
-</section>
+    <!-- Desktop Icons for quick launch -->
+    <div class="desktop-icons">
+      <button class="desktop-icon" data-target="window-about">
+        <svg viewBox="0 0 32 32" class="pixel-icon">
+          <!-- Folder with user inside -->
+          <path d="M2,6 h8 l2,4 h18 v18 h-28 z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="16" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M11,24 q5,-5 10,0" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>About Me</span>
+      </button>
 
-<section id="experience" class="container">
-  <p class="section-label">background</p>
-  <h2>Experience</h2>
+      <button class="desktop-icon" data-target="window-projects">
+        <svg viewBox="0 0 32 32" class="pixel-icon">
+          <!-- Floppy Disk -->
+          <path d="M4,4 h20 l4,4 v20 h-24 z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <rect x="8" y="4" width="12" height="8" fill="none" stroke="currentColor" stroke-width="2"/>
+          <rect x="8" y="18" width="16" height="10" fill="none" stroke="currentColor" stroke-width="2"/>
+          <rect x="18" y="6" width="2" height="4" fill="currentColor"/>
+        </svg>
+        <span>Projects</span>
+      </button>
 
-  <div class="xp-item">
-    <div class="xp-head">
-      <h3>RWTH Aachen University</h3>
-      <span class="xp-date">2025 – expected Sep 2027</span>
-    </div>
-    <p class="xp-role">M.Sc. Data Analytics and Decision Science · Grade 1.5</p>
-    <ul>
-      <li>Coursework: Advanced Machine Learning (Grade 1.3; PyTorch, deep learning), Algorithms &amp; Data Structures, Predictive Modeling, Optimization Models (integer &amp; linear programming), Operations Research, Financial Analytics.</li>
-    </ul>
-  </div>
+      <button class="desktop-icon" data-target="window-experience">
+        <svg viewBox="0 0 32 32" class="pixel-icon">
+          <!-- Document / Clipboard -->
+          <path d="M6,2 h14 l6,6 v22 h-20 z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M20,2 v6 h6" fill="none" stroke="currentColor" stroke-width="2"/>
+          <line x1="10" y1="14" x2="22" y2="14" stroke="currentColor" stroke-width="2"/>
+          <line x1="10" y1="19" x2="22" y2="19" stroke="currentColor" stroke-width="2"/>
+          <line x1="10" y1="24" x2="18" y2="24" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Experience</span>
+      </button>
 
-  <div class="xp-item">
-    <div class="xp-head">
-      <h3>Publicis Sapient</h3>
-      <span class="xp-date">Mar 2022 – Jul 2024</span>
-    </div>
-    <p class="xp-role">Associate Technology L1 · Gurugram, India</p>
-    <ul>
-      <li>Engineered behavioral data pipelines across 4 Shiseido Americas brand properties (Shiseido, NARS, Clé de Peau Beauté, Drunk Elephant), instrumenting client-side event capture to feed downstream analytics and modeling workflows.</li>
-      <li>Built automated ETL pipelines synchronizing inventory datasets in real time across distributed platform components, on brand portfolios generating $9B+ in annual revenue.</li>
-      <li>Integrated the Extole referral platform via REST API to capture cross-channel attribution events.</li>
-    </ul>
-  </div>
+      <button class="desktop-icon" data-target="window-skills">
+        <svg viewBox="0 0 32 32" class="pixel-icon">
+          <!-- Toolbox -->
+          <path d="M4,10 h24 v18 h-24 z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M10,10 v-4 h12 v4" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="16" cy="18" r="2" fill="currentColor"/>
+          <path d="M4,18 h24" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2,2"/>
+        </svg>
+        <span>Skills</span>
+      </button>
 
-  <div class="xp-item">
-    <div class="xp-head">
-      <h3>Publicis Sapient</h3>
-      <span class="xp-date">Sep 2021 – Mar 2022</span>
+      <button class="desktop-icon" data-target="window-contact">
+        <svg viewBox="0 0 32 32" class="pixel-icon">
+          <!-- Mailbox -->
+          <path d="M4,12 q0,-6 12,-6 t12,6 v14 h-24 z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M4,26 h24" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M20,12 l-4,4 l-4,-4" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M24,20 v-8 h2" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Contact</span>
+      </button>
     </div>
-    <p class="xp-role">Junior Associate Technology · Gurugram, India</p>
-    <ul>
-      <li>Developed backend services for high-traffic B2C commerce platforms, maintaining data integrity under production load.</li>
-      <li>Designed and optimized a shipping-method recommendation algorithm that parsed user location data to compute and rank optimal shipping routes.</li>
-    </ul>
-  </div>
-</section>
 
-<section id="skills" class="container">
-  <p class="section-label">toolbox</p>
-  <h2>Technical Skills</h2>
-  <div class="skills-grid">
-    <div class="skill-group">
-      <h4>Machine Learning &amp; AI</h4>
-      <p>PyTorch · scikit-learn · Graph Neural Networks · Deep Learning · LLMs · Agentic Workflows (LangGraph, ReAct) · RAG</p>
-    </div>
-    <div class="skill-group">
-      <h4>Optimization &amp; OR</h4>
-      <p>MIP / LP · Column Generation · Branch-and-Price · Set Partitioning · SCIP (PySCIPopt) · Gurobi · Resource-Constrained Shortest Path · NetworkX</p>
-    </div>
-    <div class="skill-group">
-      <h4>Programming &amp; Analytics</h4>
-      <p>Python (pandas, NumPy, SciPy) · C++ · Java · SQL (PostgreSQL, BigQuery) · Statistical Modeling · Power BI</p>
-    </div>
-    <div class="skill-group">
-      <h4>Data &amp; Cloud Engineering</h4>
-      <p>ETL Pipelines · REST APIs · FastAPI · ChromaDB · GCP · Docker · Linux · Git · GitHub Actions · Prometheus</p>
-    </div>
-    <div class="skill-group">
-      <h4>Web &amp; Mobile</h4>
-      <p>React Native (Expo) · TypeScript · Supabase (PostgreSQL, Realtime, Row-Level Security) · WebSockets · Node.js</p>
-    </div>
-    <div class="skill-group">
-      <h4>Languages</h4>
-      <p>English (C2) · German (B1, progressing toward B2)</p>
-    </div>
-  </div>
-</section>
+    <!-- WINDOW 1: ABOUT ME -->
+    <section class="mac-window" id="window-about">
+      <div class="mac-titlebar">
+        <button class="mac-close-btn" aria-label="Close" data-target="window-about"></button>
+        <div class="mac-titlebar-lines"></div>
+        <span class="mac-title">About Me</span>
+        <div class="mac-titlebar-lines"></div>
+      </div>
+      <div class="mac-content">
+        <header class="hero">
+          <img class="hero-photo" src="assets/avatar.png" alt="Pixel Art Avatar of Harjasdeep Singh Allahabadia" width="480" height="480" />
+          <span class="kicker">// machine learning · optimization · data engineering</span>
+          <h1>Harjasdeep Singh Allahabadia</h1>
+          <p class="tagline">
+            M.Sc. student in <strong>Data Analytics &amp; Decision Science</strong> at RWTH Aachen
+            (Grade 1.5), with <strong>3 years of production engineering</strong> at
+            Publicis Sapient — full-stack development with data-engineering work. Current work spans graph neural networks, LLM agent systems,
+            and large-scale mathematical optimization.
+          </p>
+          <div class="hero-meta">
+            <span>📍 Aachen, Germany</span>
+            <span>🎓 RWTH Aachen · expected Sep 2027</span>
+            <span>💼 Seeking WS26–27 internship</span>
+          </div>
+          <div class="hero-cta">
+            <button class="btn btn-primary nav-window-trigger" data-target="window-projects">View projects</button>
+            <a class="btn btn-ghost" href="https://github.com/HARDY1499" target="_blank" rel="noopener">GitHub</a>
+            <a class="btn btn-ghost" href="https://linkedin.com/in/harjasdeep14" target="_blank" rel="noopener">LinkedIn</a>
+          </div>
+        </header>
+      </div>
+    </section>
 
-<section id="contact" class="container">
-  <div class="contact-box">
-    <p class="section-label">get in touch</p>
-    <h2>Open to WS26–27 internships in Germany</h2>
-    <p>Based in Aachen, willing to relocate. Eligible for Werkstudent roles and internships under enrolled-student work rights.</p>
-    <div class="hero-cta" style="justify-content:center;">
-      <a class="btn btn-primary" href="mailto:your.email@example.com">your.email@example.com</a>
-      <a class="btn btn-ghost" href="https://linkedin.com/in/harjasdeep14" target="_blank" rel="noopener">LinkedIn</a>
-    </div>
-  </div>
-</section>
+    <!-- WINDOW 2: PROJECTS -->
+    <section class="mac-window" id="window-projects">
+      <div class="mac-titlebar">
+        <button class="mac-close-btn" aria-label="Close" data-target="window-projects"></button>
+        <div class="mac-titlebar-lines"></div>
+        <span class="mac-title">Projects</span>
+        <div class="mac-titlebar-lines"></div>
+      </div>
+      <div class="mac-content">
+        <p class="section-label">selected work</p>
+        <h2>Projects</h2>
+        <div class="project-grid" id="project-grid"><!-- rendered from assets/projects.js --></div>
+      </div>
+    </section>
 
-<footer>
-  <div class="container">© 2026 Harjasdeep Singh Allahabadia · built with plain HTML/CSS/JS</div>
-</footer>
+    <!-- WINDOW 3: EXPERIENCE -->
+    <section class="mac-window" id="window-experience">
+      <div class="mac-titlebar">
+        <button class="mac-close-btn" aria-label="Close" data-target="window-experience"></button>
+        <div class="mac-titlebar-lines"></div>
+        <span class="mac-title">Experience</span>
+        <div class="mac-titlebar-lines"></div>
+      </div>
+      <div class="mac-content">
+        <p class="section-label">background</p>
+        <h2>Experience</h2>
 
-<script src="assets/projects.js?v=5"></script>
+        <div class="xp-item">
+          <div class="xp-head">
+            <h3>RWTH Aachen University</h3>
+            <span class="xp-date">2025 – expected Sep 2027</span>
+          </div>
+          <p class="xp-role">M.Sc. Data Analytics and Decision Science · Grade 1.5</p>
+          <ul>
+            <li>Coursework: Advanced Machine Learning (Grade 1.3; PyTorch, deep learning), Algorithms &amp; Data Structures, Predictive Modeling, Optimization Models (integer &amp; linear programming), Operations Research, Financial Analytics.</li>
+          </ul>
+        </div>
+
+        <div class="xp-item">
+          <div class="xp-head">
+            <h3>Publicis Sapient</h3>
+            <span class="xp-date">Mar 2022 – Jul 2024</span>
+          </div>
+          <p class="xp-role">Associate Technology L1 · Gurugram, India</p>
+          <ul>
+            <li>Engineered behavioral data pipelines across 4 Shiseido Americas brand properties (Shiseido, NARS, Clé de Peau Beauté, Drunk Elephant), instrumenting client-side event capture to feed downstream analytics and modeling workflows.</li>
+            <li>Built automated ETL pipelines synchronizing inventory datasets in real time across distributed platform components, on brand portfolios generating $9B+ in annual revenue.</li>
+            <li>Integrated the Extole referral platform via REST API to capture cross-channel attribution events.</li>
+          </ul>
+        </div>
+
+        <div class="xp-item">
+          <div class="xp-head">
+            <h3>Publicis Sapient</h3>
+            <span class="xp-date">Sep 2021 – Mar 2022</span>
+          </div>
+          <p class="xp-role">Junior Associate Technology · Gurugram, India</p>
+          <ul>
+            <li>Developed backend services for high-traffic B2C commerce platforms, maintaining data integrity under production load.</li>
+            <li>Designed and optimized a shipping-method recommendation algorithm that parsed user location data to compute and rank optimal shipping routes.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- WINDOW 4: SKILLS -->
+    <section class="mac-window" id="window-skills">
+      <div class="mac-titlebar">
+        <button class="mac-close-btn" aria-label="Close" data-target="window-skills"></button>
+        <div class="mac-titlebar-lines"></div>
+        <span class="mac-title">Technical Skills</span>
+        <div class="mac-titlebar-lines"></div>
+      </div>
+      <div class="mac-content">
+        <p class="section-label">toolbox</p>
+        <h2>Technical Skills</h2>
+        <div class="skills-grid">
+          <div class="skill-group">
+            <h4>Machine Learning &amp; AI</h4>
+            <p>PyTorch · scikit-learn · Graph Neural Networks · Deep Learning · LLMs · Agentic Workflows (LangGraph, ReAct) · RAG</p>
+          </div>
+          <div class="skill-group">
+            <h4>Optimization &amp; OR</h4>
+            <p>MIP / LP · Column Generation · Branch-and-Price · Set Partitioning · SCIP (PySCIPopt) · Gurobi · Resource-Constrained Shortest Path · NetworkX</p>
+          </div>
+          <div class="skill-group">
+            <h4>Programming &amp; Analytics</h4>
+            <p>Python (pandas, NumPy, SciPy) · C++ · Java · SQL (PostgreSQL, BigQuery) · Statistical Modeling · Power BI</p>
+          </div>
+          <div class="skill-group">
+            <h4>Data &amp; Cloud Engineering</h4>
+            <p>ETL Pipelines · REST APIs · FastAPI · ChromaDB · GCP · Docker · Linux · Git · GitHub Actions · Prometheus</p>
+          </div>
+          <div class="skill-group">
+            <h4>Web &amp; Mobile</h4>
+            <p>React Native (Expo) · TypeScript · Supabase (PostgreSQL, Realtime, Row-Level Security) · WebSockets · Node.js</p>
+          </div>
+          <div class="skill-group">
+            <h4>Languages</h4>
+            <p>English (C2) · German (B1, progressing toward B2)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WINDOW 5: CONTACT -->
+    <section class="mac-window" id="window-contact">
+      <div class="mac-titlebar">
+        <button class="mac-close-btn" aria-label="Close" data-target="window-contact"></button>
+        <div class="mac-titlebar-lines"></div>
+        <span class="mac-title">Get In Touch</span>
+        <div class="mac-titlebar-lines"></div>
+      </div>
+      <div class="mac-content">
+        <div class="contact-box">
+          <p class="section-label">get in touch</p>
+          <h2>Open to WS26–27 internships in Germany</h2>
+          <p>Based in Aachen, willing to relocate. Eligible for Werkstudent roles and internships under enrolled-student work rights.</p>
+          <div class="hero-cta" style="justify-content:center;">
+            <a class="btn btn-primary" href="mailto:your.email@example.com">your.email@example.com</a>
+            <a class="btn btn-ghost" href="https://linkedin.com/in/harjasdeep14" target="_blank" rel="noopener">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">© 2026 Harjasdeep Singh Allahabadia · built with plain HTML/CSS/JS</div>
+  </footer>
+
+  <script src="assets/projects.js"></script>
 </body>
 </html>

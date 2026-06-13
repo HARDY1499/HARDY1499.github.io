@@ -6,24 +6,53 @@
   <title>Captain Scheduling Optimization for Eurowings — Harjasdeep Singh</title>
   <meta name="description" content="Integrated column-generation solver for the Eurowings captain scheduling problem: 432 captains, 52,885 flight legs, 8 European bases. Branch-and-price, SCIP, performance engineering." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/style.css?v=5" />
-  <script src="../assets/main.js?v=5"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <script src="../assets/main.js"></script>
 </head>
-<body>
+<body class="crt-active" data-theme="green">
 
-<nav>
-  <div class="nav-inner">
-    <a class="nav-logo" href="../index.html">harjasdeep.singh</a>
-    <div class="nav-links">
-      <a href="../index.html#projects">Projects</a>
-      <a href="../index.html#contact">Contact</a>
-      <button id="theme-toggle" aria-label="Toggle theme">☾</button>
+  <!-- CRT Overlay for scanlines and phosphor glow -->
+  <div class="crt-overlay"></div>
+
+  <!-- Retro System Menu Bar -->
+  <nav class="system-menu-bar">
+    <div class="menu-item dropdown">
+      <span class="menu-title">◆</span>
+      <div class="dropdown-content">
+        <a href="../index.html">Back to Desktop</a>
+        <hr>
+        <span class="dropdown-label">System 1.0</span>
+      </div>
     </div>
-  </div>
-</nav>
+    <div class="menu-item dropdown">
+      <span class="menu-title">File</span>
+      <div class="dropdown-content">
+        <a href="javascript:window.print()">Print Case Study</a>
+        <a href="mailto:your.email@example.com">Send Email</a>
+      </div>
+    </div>
+    <div class="menu-item dropdown">
+      <span class="menu-title">View</span>
+      <div class="dropdown-content">
+        <a href="#" class="theme-select active" data-theme="green">Matrix Green (CRT)</a>
+        <a href="#" class="theme-select" data-theme-name="amber">Amber Phosphor</a>
+        <a href="#" class="theme-select" data-theme-name="classic">Classic Monochrome</a>
+        <hr>
+        <a href="#" id="menu-toggle-scanlines">Disable Scanlines</a>
+      </div>
+    </div>
+    <div class="system-time" id="menu-clock">12:00:00 PM</div>
+  </nav>
 
-<main class="case container">
+  <main class="mac-window case container" style="max-width: 800px; margin: 60px auto 40px;">
+    <div class="mac-titlebar">
+      <button class="mac-close-btn" aria-label="Close" onclick="window.location.href='../index.html'"></button>
+      <div class="mac-titlebar-lines"></div>
+      <span class="mac-title">Case Study: Crew Scheduling</span>
+      <div class="mac-titlebar-lines"></div>
+    </div>
+    <div class="mac-content">
   <a class="back" href="../index.html#projects">← back to projects</a>
   <h1>Captain Scheduling Optimization for Eurowings</h1>
   <p class="case-sub">
@@ -118,7 +147,8 @@
     <a href="../index.html#projects">← All projects</a>
     <a href="berlin-stgnn.html">Next: Berlin Traffic ST-GNN →</a>
   </div>
-</main>
+    </div>
+  </main>
 
 <footer>
   <div class="container">© 2026 Harjasdeep Singh Allahabadia</div>
