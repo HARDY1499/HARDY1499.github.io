@@ -150,6 +150,8 @@ a:hover {
   .app-container {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
+    height: 100vh;
+    height: 100dvh;
   }
 }
 
@@ -621,8 +623,8 @@ a:hover {
     align-items: center;
     background-color: var(--bg-surface-solid);
     border-top: 1px solid var(--border-color);
-    height: 60px;
-    padding: 4px 8px;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px)) 8px;
     z-index: 1000;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(12px);
