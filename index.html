@@ -14,7 +14,13 @@
   <div class="app-container">
     
     <!-- SIDEBAR NAVIGATION -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
+      <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Close Navigation Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
       <div class="profile-card">
         <div class="profile-img-container">
           <img class="profile-img" src="assets/profile.jpg" alt="Harjasdeep Singh Allahabadia" />
@@ -85,14 +91,26 @@
       </div>
     </aside>
 
+    <!-- SIDEBAR BACKDROP OVERLAY FOR MOBILE -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
     <!-- MAIN WORKSPACE CONTENT -->
     <main class="main-content">
       
       <!-- Top header strip -->
       <header class="app-header">
-        <div class="header-welcome">
-          <h1 id="header-panel-title">System Panel // Overview</h1>
-          <p>Harjasdeep Singh Allahabadia — Professional Portfolio Command</p>
+        <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+          <button class="icon-btn mobile-menu-toggle-btn" id="mobile-menu-toggle" aria-label="Toggle Mobile Menu" aria-controls="sidebar" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <div class="header-welcome">
+            <h1 id="header-panel-title">System Panel // Overview</h1>
+            <p>Harjasdeep Singh Allahabadia — Professional Portfolio Command</p>
+          </div>
         </div>
         
         <div class="header-controls">

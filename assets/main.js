@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initConsoleLogger();
   initThemeEngine();
   initTabRouting();
+  initMobileMenu();
   initClockLoop();
   initProjectExplorer();
   initInteractiveTerminal();
@@ -170,6 +171,11 @@ function initTabRouting() {
         headerTitle.textContent = `System Panel // ${panelName}`;
       }
 
+      // Auto-close mobile drawer menu upon selecting a tab
+      if (window.closeMobileMenu && window.innerWidth <= 850) {
+        window.closeMobileMenu();
+      }
+
       window.logConsoleEvent("SYS", `Active workspace panel switched to: ${targetTab.toUpperCase()}`);
     });
   });
@@ -184,6 +190,75 @@ function initTabRouting() {
       if (navBtn) navBtn.click();
     }
   });
+}
+
+/* ============================================================
+   3.5. MOBILE SLIDE-OUT DRAWER MENU
+   ============================================================ */
+function initMobileMenu() {
+  const toggleBtn = document.getElementById("mobile-menu-toggle");
+  const sidebar = document.getElementById("sidebar");
+  const backdrop = document.getElementById("sidebar-backdrop");
+  const closeBtn = document.getElementById("sidebar-close-btn");
+  const mainContent = document.querySelector(".main-content");
+
+  if (!toggleBtn || !sidebar || !backdrop) return;
+
+  const openMenu = () => {
+    sidebar.classList.add("open");
+    backdrop.classList.add("open");
+    toggleBtn.setAttribute("aria-expanded", "true");
+    if (mainContent && window.innerWidth <= 850) {
+      mainContent.inert = true;
+    }
+    window.logConsoleEvent("SYS", "Mobile navigation menu drawer opened.");
+  };
+
+  const closeMenu = () => {
+    sidebar.classList.remove("open");
+    backdrop.classList.remove("open");
+    toggleBtn.setAttribute("aria-expanded", "false");
+    if (mainContent) {
+      mainContent.inert = false;
+    }
+    window.logConsoleEvent("SYS", "Mobile navigation menu drawer closed.");
+  };
+
+  toggleBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (sidebar.classList.contains("open")) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeMenu);
+  }
+
+  backdrop.addEventListener("click", closeMenu);
+
+  // Close menu on ESC key press
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && sidebar.classList.contains("open")) {
+      closeMenu();
+    }
+  });
+
+  // Handle screen resize: clean up drawer states when transitioning to desktop
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 850) {
+      if (sidebar.classList.contains("open")) {
+        closeMenu();
+      } else if (mainContent && mainContent.inert) {
+        mainContent.inert = false;
+      }
+    }
+  });
+
+  // Expose closeMenu globally so other parts of main.js can use it
+  window.closeMobileMenu = closeMenu;
 }
 
 /* ============================================================
