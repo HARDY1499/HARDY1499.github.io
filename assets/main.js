@@ -473,7 +473,7 @@ function initInteractiveTerminal() {
     },
     "/contact": () => {
       appendTerminalLine("Contact Coordinates:", "success");
-      appendTerminalLine(" -> Email: harjasdeep.singh.allahabadia@rwth-aachen.de");
+      appendTerminalLine(" -> Channel: Please use the message form on this page.");
       appendTerminalLine(" -> Location: Aachen, North Rhine-Westphalia, Germany");
       appendTerminalLine("Locating entry fields... Form active.", "system");
       
