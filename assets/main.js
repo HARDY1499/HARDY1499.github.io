@@ -148,9 +148,14 @@ function initTabRouting() {
       const targetTab = btn.getAttribute("data-tab");
       if (!targetTab) return;
 
-      // Update Nav Buttons active state
-      navButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+      // Update Nav Buttons active state (synchronize sidebar and bottom nav)
+      navButtons.forEach(b => {
+        if (b.getAttribute("data-tab") === targetTab) {
+          b.classList.add("active");
+        } else {
+          b.classList.remove("active");
+        }
+      });
 
       // Update Views active state
       panelViews.forEach(view => {

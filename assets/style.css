@@ -359,7 +359,7 @@ a:hover {
     height: 20px;
   }
   .mobile-menu-toggle-btn {
-    display: flex !important;
+    display: none !important;
   }
   .sidebar-backdrop {
     display: block;
@@ -458,6 +458,10 @@ a:hover {
 }
 
 .header-profile {
+  display: none;
+}
+
+.bottom-nav {
   display: none;
 }
 
@@ -605,6 +609,70 @@ a:hover {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+  }
+
+  .main-content {
+    grid-template-rows: auto 1fr auto auto; /* Header, Viewport, Console, Bottom Nav */
+  }
+
+  .bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: var(--bg-surface-solid);
+    border-top: 1px solid var(--border-color);
+    height: 60px;
+    padding: 4px 8px;
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .bottom-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    gap: 4px;
+    font-size: 0.75rem;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+    flex: 1;
+    height: 100%;
+    padding: 0;
+  }
+
+  .bottom-nav-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    transition: stroke var(--transition-speed) ease, transform 0.2s ease;
+  }
+
+  .bottom-nav-btn:hover {
+    color: var(--accent);
+  }
+  
+  .bottom-nav-btn:hover svg {
+    transform: translateY(-1px);
+  }
+
+  .bottom-nav-btn.active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .bottom-nav-btn.active svg {
+    stroke: var(--accent);
+    filter: drop-shadow(0 0 4px var(--accent-glow));
   }
 }
 
