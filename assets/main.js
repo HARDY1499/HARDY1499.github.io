@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initClockLoop();
   initProjectExplorer();
   initInteractiveTerminal();
-  initLossCurveWidget();
+  initGameOfLife();
 });
 
 /* ============================================================
@@ -680,27 +680,124 @@ function initInteractiveTerminal() {
 }
 
 /* ============================================================
-   7. INTERACTIVE LOSS CURVE NODE CLICKS
+   7. CONWAY'S GAME OF LIFE (ambient placeholder)
    ============================================================ */
-function initLossCurveWidget() {
-  const dots = document.querySelectorAll(".chart-dot");
-  dots.forEach(dot => {
-    dot.addEventListener("click", () => {
-      const epoch = dot.getAttribute("data-epoch");
-      const loss = dot.getAttribute("data-val");
+function initGameOfLife() {
+  const canvas = document.getElementById("game-of-life");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const genEl = document.getElementById("life-gen");
+  const popEl = document.getElementById("life-pop");
 
-      window.logConsoleEvent("DATA", `Loss node clicked. Model state Epoch: ${epoch}, Validation Loss (L1): ${loss}`);
-      
-      const termBody = document.getElementById("interactive-terminal-body");
-      if (termBody) {
-        const line = document.createElement("div");
-        line.className = "terminal-line success";
-        line.textContent = `[PLOT ANALYTICS] Epoch: ${epoch} || Loss value: ${loss}`;
-        termBody.appendChild(line);
-        termBody.scrollTop = termBody.scrollHeight;
-      }
+  const CELL = 9;            // logical px per cell (before DPR scaling)
+  let cols, rows, grid, next, gen, stale, lastPop;
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+  const accent = () =>
+    getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2fbf71";
+
+  function resize() {
+    const w = canvas.clientWidth || 600;
+    const h = canvas.clientHeight || 180;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cols = Math.floor(w / CELL);
+    rows = Math.floor(h / CELL);
+    grid = new Uint8Array(cols * rows);
+    next = new Uint8Array(cols * rows);
+    seed();
+  }
+
+  const idx = (x, y) => y * cols + x;
+
+  function seed() {
+    for (let i = 0; i < grid.length; i++) grid[i] = Math.random() < 0.18 ? 1 : 0;
+    // scatter a few gliders for visible motion
+    for (let g = 0; g < 3; g++) addGlider(
+      2 + Math.floor(Math.random() * Math.max(1, cols - 6)),
+      2 + Math.floor(Math.random() * Math.max(1, rows - 6))
+    );
+    gen = 0; stale = 0; lastPop = -1;
+  }
+
+  function addGlider(x, y) {
+    const cells = [[1,0],[2,1],[0,2],[1,2],[2,2]];
+    cells.forEach(([dx, dy]) => {
+      const cx = (x + dx) % cols, cy = (y + dy) % rows;
+      if (cx >= 0 && cy >= 0) grid[idx(cx, cy)] = 1;
     });
+  }
+
+  function step() {
+    let pop = 0;
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        let n = 0;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (dx === 0 && dy === 0) continue;
+            const nx = (x + dx + cols) % cols;  // wrap-around torus
+            const ny = (y + dy + rows) % rows;
+            n += grid[idx(nx, ny)];
+          }
+        }
+        const alive = grid[idx(x, y)];
+        const live = alive ? (n === 2 || n === 3) : (n === 3);
+        next[idx(x, y)] = live ? 1 : 0;
+        pop += live;
+      }
+    }
+    [grid, next] = [next, grid];
+    gen++;
+    // reseed if extinct or stable for a while
+    if (pop === 0 || pop === lastPop) stale++; else stale = 0;
+    lastPop = pop;
+    if (pop === 0 || stale > 18) seed();
+    return pop;
+  }
+
+  function draw(pop) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = accent();
+    const r = CELL * 0.34;
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        if (!grid[idx(x, y)]) continue;
+        const px = x * CELL + CELL / 2, py = y * CELL + CELL / 2;
+        ctx.globalAlpha = 0.85;
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+    if (genEl) genEl.textContent = "gen " + gen;
+    if (popEl) popEl.textContent = "pop " + pop;
+  }
+
+  // ~12 fps tick, redrawn via rAF; pauses when tab hidden
+  let acc = 0, last = performance.now(), pop = 0;
+  function loop(now) {
+    acc += now - last; last = now;
+    if (acc > 85) { pop = step(); acc = 0; }
+    draw(pop);
+    requestAnimationFrame(loop);
+  }
+
+  canvas.addEventListener("click", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const cx = Math.floor((e.clientX - rect.left) / CELL);
+    const cy = Math.floor((e.clientY - rect.top) / CELL);
+    addGlider(cx, cy);
+    stale = 0;
   });
+
+  let rt;
+  window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(resize, 200); });
+
+  resize();
+  requestAnimationFrame(loop);
 }
 
 /* ============================================================

@@ -185,7 +185,7 @@
           <div class="objective-alert">
             <div class="alert-content">
               <h3>Internship Recruitment WS 26-27</h3>
-              <p>Actively seeking Machine Learning / Data Science / Operations Research internships or Werkstudent positions in Germany. Relocation-flexible.</p>
+              <p>Actively seeking Machine Learning / Data Science / Operations Research internships or Working student positions in Germany. Relocation-flexible.</p>
             </div>
             <span class="alert-badge">Open for Roles</span>
           </div>
@@ -194,7 +194,7 @@
             <div class="stat-card">
               <div class="stat-label">Production Experience</div>
               <div class="stat-value">3 Years</div>
-              <div class="stat-desc">Sapient B2C engineering pipelines</div>
+              <div class="stat-desc">B2C engineering pipelines</div>
             </div>
             <div class="stat-card">
               <div class="stat-label">RWTH Grade (M.Sc)</div>
@@ -221,7 +221,7 @@
             <div class="bio-text">
               <p>I am an M.Sc. student in <strong>Data Analytics and Decision Science</strong> at <strong>RWTH Aachen University</strong>, combining strong theoretical knowledge in optimization, linear/integer programming, and algorithms with <strong>3 years of industrial production experience</strong> in full-stack and data engineering at Publicis Sapient.</p>
               <br>
-              <p>My current research and coursework focus heavily on **Graph Neural Networks (GNNs)**, advanced deep learning models, LLM agent systems, and solving large-scale mathematical optimization tasks (e.g., set partitioning with column generation). I enjoy bridging complex algorithms and mathematical models with scalable, high-throughput software architectures.</p>
+              <p>My current projects and coursework focus heavily on Graph Neural Networks (GNNs), advanced deep learning models, LLM agent systems, and solving large-scale mathematical optimization tasks (e.g., set partitioning with column generation). I enjoy bridging complex algorithms and mathematical models with scalable, high-throughput software architectures.</p>
             </div>
           </div>
 
@@ -232,11 +232,11 @@
             </div>
             <div class="bio-text">
               <ul style="margin-left: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
-                <li><strong>Advanced Machine Learning</strong> (Grade: 1.3 - PyTorch deep learning structures)</li>
+                <li><strong>Machine Learning</strong> (Grade: 1.3 - PyTorch deep learning structures)</li>
                 <li><strong>Optimization Models</strong> (Integer &amp; Linear programming models)</li>
-                <li><strong>Operations Research</strong> (Algorithms, simplex, complexity theories)</li>
-                <li><strong>Predictive Modeling</strong> (Regression, time series, classification)</li>
-                <li><strong>Algorithms and Data Structures</strong> (Complexity, graph searches)</li>
+                <li><strong>Predictive Modeling</strong> (Utility function, choice theory and models)</li>
+                <li><strong>Discrete Choice Modeling</strong> (Pricing strategies for Revenue Maximization, Revenue-ordered assortment, Reformulating hard nonlinear optimization into solvable MILP)</li>
+                <li><strong>Algorithms and Data Structures</strong> (Optimization Algorithms, Complexity, graph searches)</li>
                 <li><strong>Financial Analytics</strong> (Quantitative models, portfolio weights)</li>
               </ul>
             </div>
@@ -265,49 +265,19 @@
             <!-- Rendered dynamically from projects.js -->
           </div>
 
-          <!-- Dynamic SVG Chart Widget simulating a Loss Curve/Scheduler feedback -->
+          <!-- Conway's Game of Life — ambient placeholder, real cellular automaton -->
           <div class="chart-widget">
             <div class="dashboard-card">
               <div class="dashboard-card-title">
-                <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 118 2.83M22 12A10 10 0 0012 2v10z"/></svg>
-                <span>Dynamic Optimizer Analysis // GNN Convergence Simulation</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                <span>Conway's Game of Life // Cellular automaton</span>
               </div>
               <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
-                Interactive simulation plotting validation loss (L1) vs. training epochs. Click data nodes to view epoch performance metrics.
+                Four local rules, no player. Each cell lives or dies from its neighbour count, and complex patterns emerge on their own. Click the grid to spawn cells; it reseeds when life stabilises.
               </p>
-              <div class="svg-chart-container">
-                <svg class="loss-curve-svg" viewBox="0 0 500 160">
-                  <!-- Chart grids -->
-                  <line x1="40" y1="20" x2="40" y2="130" class="chart-axis" />
-                  <line x1="40" y1="130" x2="480" y2="130" class="chart-axis" />
-                  <line x1="40" y1="20" x2="480" y2="20" class="chart-grid-line" />
-                  <line x1="40" y1="56" x2="480" y2="56" class="chart-grid-line" />
-                  <line x1="40" y1="93" x2="480" y2="93" class="chart-grid-line" />
-
-                  <!-- Text Labels -->
-                  <text x="35" y="130" class="chart-text" text-anchor="end">0.0</text>
-                  <text x="35" y="93" class="chart-text" text-anchor="end">0.3</text>
-                  <text x="35" y="56" class="chart-text" text-anchor="end">0.6</text>
-                  <text x="35" y="20" class="chart-text" text-anchor="end">0.9</text>
-
-                  <text x="40" y="145" class="chart-text" text-anchor="middle">Ep 1</text>
-                  <text x="128" y="145" class="chart-text" text-anchor="middle">Ep 10</text>
-                  <text x="216" y="145" class="chart-text" text-anchor="middle">Ep 20</text>
-                  <text x="304" y="145" class="chart-text" text-anchor="middle">Ep 30</text>
-                  <text x="392" y="145" class="chart-text" text-anchor="middle">Ep 40</text>
-                  <text x="480" y="145" class="chart-text" text-anchor="middle">Ep 50</text>
-
-                  <!-- Loss Curve path -->
-                  <path d="M40 28 Q 128 90 216 110 T 392 120 T 480 123" class="chart-line" id="loss-curve-path" />
-
-                  <!-- Interactive Nodes -->
-                  <circle cx="40" cy="28" r="4.5" class="chart-dot" data-epoch="1" data-val="0.842" />
-                  <circle cx="128" cy="73" r="4.5" class="chart-dot" data-epoch="10" data-val="0.495" />
-                  <circle cx="216" cy="110" r="4.5" class="chart-dot" data-epoch="20" data-val="0.198" />
-                  <circle cx="304" cy="118" r="4.5" class="chart-dot" data-epoch="30" data-val="0.103" />
-                  <circle cx="392" cy="120" r="4.5" class="chart-dot" data-epoch="40" data-val="0.089" />
-                  <circle cx="480" cy="123" r="4.5" class="chart-dot" data-epoch="50" data-val="0.064" />
-                </svg>
+              <div class="life-stage">
+                <canvas id="game-of-life" aria-label="Conway's Game of Life simulation"></canvas>
+                <div class="life-readout"><span id="life-gen">gen 0</span><span id="life-pop">pop 0</span></div>
               </div>
             </div>
           </div>
