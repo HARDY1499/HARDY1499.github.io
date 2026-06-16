@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initThemeEngine();
   initTabRouting();
   initMobileMenu();
+  initMobileControls();
   initClockLoop();
   initProjectExplorer();
   initInteractiveTerminal();
@@ -694,5 +695,50 @@ function initLossCurveWidget() {
         termBody.scrollTop = termBody.scrollHeight;
       }
     });
+  });
+}
+
+/* ============================================================
+   8. MOBILE CONTROLS PANEL TOGGLE (ACCENT PRESETS & LINKS)
+   ============================================================ */
+function initMobileControls() {
+  const toggleBtn = document.getElementById("mobile-controls-toggle");
+  const controls = document.getElementById("header-controls");
+
+  if (!toggleBtn || !controls) return;
+
+  const toggleControls = (e) => {
+    e.stopPropagation();
+    const isOpen = controls.classList.toggle("open");
+    toggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    toggleBtn.classList.toggle("active", isOpen);
+    window.logConsoleEvent("SYS", `Mobile settings presets panel ${isOpen ? 'opened' : 'closed'}.`);
+  };
+
+  const closeControls = () => {
+    if (controls.classList.contains("open")) {
+      controls.classList.remove("open");
+      toggleBtn.setAttribute("aria-expanded", "false");
+      toggleBtn.classList.remove("active");
+      window.logConsoleEvent("SYS", "Mobile settings presets panel closed.");
+    }
+  };
+
+  toggleBtn.addEventListener("click", toggleControls);
+
+  // Close when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!controls.contains(e.target) && !toggleBtn.contains(e.target)) {
+      closeControls();
+    }
+  });
+
+  // Close when screen resizes to desktop
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 850) {
+      controls.classList.remove("open");
+      toggleBtn.setAttribute("aria-expanded", "false");
+      toggleBtn.classList.remove("active");
+    }
   });
 }
