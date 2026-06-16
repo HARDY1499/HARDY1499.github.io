@@ -183,6 +183,7 @@ a:hover {
   width: 100px;
   height: 100px;
   margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .profile-img {
@@ -336,6 +337,11 @@ a:hover {
     height: 50px;
     margin-bottom: 0;
     margin-right: 16px;
+    flex-shrink: 0;
+  }
+  .profile-info-text {
+    flex-grow: 1;
+    min-width: 0;
   }
   .profile-name {
     font-size: 1rem;

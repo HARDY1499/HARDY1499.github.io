@@ -24,6 +24,12 @@ function initConsoleLogger() {
 
   if (!drawer || !titlebar) return;
 
+  // Collapse by default on mobile devices (width <= 850px)
+  if (window.innerWidth <= 850) {
+    drawer.classList.add("minimized");
+    titlebar.setAttribute("aria-expanded", "false");
+  }
+
   // Toggle Minimize/Expand console drawer
   titlebar.addEventListener("click", () => {
     const isMinimized = drawer.classList.toggle("minimized");
