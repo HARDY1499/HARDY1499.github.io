@@ -5,154 +5,133 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Captain Scheduling Optimization for Eurowings — Harjasdeep Singh</title>
   <meta name="description" content="Integrated column-generation solver for the Eurowings captain scheduling problem: 432 captains, 52,885 flight legs, 8 European bases. Branch-and-price, SCIP, performance engineering." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/style.css" />
-  <script src="../assets/main.js"></script>
 </head>
-<body class="crt-active" data-theme="green">
+<body class="standalone-case-body" data-theme="dark" data-accent="emerald">
 
-  <!-- CRT Overlay for scanlines and phosphor glow -->
-  <div class="crt-overlay"></div>
+  <main class="standalone-case-container">
+    <a class="standalone-back-btn" href="../index.html">
+      <svg viewBox="0 0 24 24">
+        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+      </svg>
+      <span>Back to Command Center</span>
+    </a>
 
-  <!-- Retro System Menu Bar -->
-  <nav class="system-menu-bar">
-    <div class="menu-item dropdown">
-      <span class="menu-title">◆</span>
-      <div class="dropdown-content">
-        <a href="../index.html">Back to Desktop</a>
-        <hr>
-        <span class="dropdown-label">System 1.0</span>
+    <div class="case-study-content">
+      <h1>Captain Scheduling Optimization for Eurowings</h1>
+      <p class="case-sub">
+        RWTH Aachen's Operations Research Practice Project with Eurowings (Lufthansa Group),
+        supervised by Prof. Dr. Marco Lübbecke, with operational data provided by Lufthansa Industry Solutions:
+        an integrated solver that builds and assigns complete, EASA-compliant captain rosters
+        in a single optimisation. The column-generation engine is complete and runs end-to-end;
+        current work is scaling it to the full instance. <em>Ongoing (SS 2026).</em>
+      </p>
+
+      <div class="case-facts">
+        <div class="fact">
+          <b>432</b>
+          <span>captains</span>
+        </div>
+        <div class="fact">
+          <b>52,885</b>
+          <span>flight legs</span>
+        </div>
+        <div class="fact">
+          <b>8</b>
+          <span>European bases</span>
+        </div>
+        <div class="fact">
+          <b>3 months</b>
+          <span>planning horizon</span>
+        </div>
       </div>
-    </div>
-    <div class="menu-item dropdown">
-      <span class="menu-title">File</span>
-      <div class="dropdown-content">
-        <a href="javascript:window.print()">Print Case Study</a>
-        <a href="mailto:your.email@example.com">Send Email</a>
+
+      <h2>The problem</h2>
+      <p>
+        Airline crew scheduling is one of the classic hard problems in operations research.
+        Every captain needs a legal, contiguous roster; every flight leg needs exactly one captain;
+        and the assignment must respect EASA flight-duty regulations alongside per-captain
+        preferences — off-claims, vacation, and base-level reserve quotas. The usual industrial
+        shortcut is to generate anonymous pairings first and roster them onto captains second.
+        We don't: the pricing subproblem constructs legal duties, pairings, rest, reserve shifts
+        and days off <strong>directly from raw legs</strong> into one personalised roster per
+        captain. Each master column is a fully EASA-compliant roster for one captain.
+      </p>
+
+      <h2>Architecture</h2>
+      <ul>
+        <li><strong>Master problem:</strong> Set Partitioning restricted master (RMP) with leg-coverage and daily base-reserve constraints, following Kasirzadeh et al. (2017). Branch-and-price is the planned extension.</li>
+        <li><strong>Pricing subproblem:</strong> label-setting resource-constrained shortest path on a per-captain time-space DAG, with EASA 7/14/28-day rolling duty and 28-day flight-time resources, overtime at duty close, and off-claim deviation at the sink.</li>
+        <li><strong>Solver:</strong> SCIP via PySCIPOpt, with a custom <code>Pricer</code> plugin registering negative-reduced-cost columns after each LP solve. Column generation with custom pricers is what SCIP is built for — Gurobi is kept only as a comparison benchmark.</li>
+      </ul>
+
+      <h2>Three design decisions worth telling</h2>
+      <ul>
+        <li><strong>Consecutive days off enforced by topology, not by a resource.</strong> The network emits home-base rest only as blocks of 2 or 3 days; since 2 and 3 additively generate every integer ≥ 2, any legal rest length is representable while a lone 1-day off is <em>structurally impossible</em>. No DP resource needed.</li>
+        <li><strong>Non-separable penalties live at the sink.</strong> Off-claim deviation depends on a captain's total days off across the horizon, which breaks label dominance. We track it on labels but exclude it from dominance, charging the penalty once at the sink.</li>
+        <li><strong>Nominal cost recovered from duality, not re-summed.</strong> The pricer returns reduced cost; true cost is recovered as <code>c = c_red + Σπ + μ + Σλ</code> across all three dual families, keeping column objectives consistent as duals move.</li>
+      </ul>
+
+      <h2>The scaling story: measure, then fix the thing that's actually slow</h2>
+      <p>
+        The engine converged on toy instances but hit a wall on a 25-captain, 1,797-leg slice:
+        building <em>one</em> captain's DAG took ~8.3 s and produced ~37k arcs, and the DAG was
+        rebuilt per captain, per iteration — roughly 200 seconds of pure graph construction
+        per pricing round before the solver could even re-solve the LP.
+      </p>
+      <ul>
+        <li><strong>Topology caching.</strong> A captain's DAG mixes two things that change on different clocks: the <em>shape</em> (decided by the flight schedule and EASA timing rules — identical in iteration 1 and 50) and the <em>arc costs</em> (fresh duals every round). The fix: build the captain-independent skeleton once per base, re-stamp only the dual-dependent costs each iteration, and turn hard absences into per-captain node masks instead of rebuilds. The ~200 s/round build wall disappeared.</li>
+        <li><strong>Bounded, vectorised construction.</strong> Replaced an O(legs²) <code>iterrows</code> double loop with a per-airport, departure-time-sorted bisect index, and capped outstation-overnight fan-out to the earliest legal next departures. Measured on a 644-leg weekly instance: <strong>total arcs −72%</strong> (16.7k → 4.7k), outstation arcs −93%, build time under 0.1 s — with all tests green, so arc semantics are preserved.</li>
+        <li><strong>Exact base-group pricing.</strong> Once duals are fixed, every captain of a base sees the same monetary arc costs; the captain-specific terms (availability dual, off-claim target) apply only at the sink and cannot change label dominance. So all absence-free captains share <em>one</em> pricing sweep, disaggregated per captain afterwards. Measured: <strong>70 → 27 sweeps per round, ~2.8× faster</strong> — and provably exact, pinned by a regression test asserting the converged LP is identical to per-captain pricing.</li>
+        <li><strong>Well-posed instances as a correctness requirement.</strong> Early experiment slices sampled legs and captains independently, so demand wildly exceeded crew capacity — column generation burned hundreds of rounds chasing legs that were physically uncoverable. Built a per-base weekly instance generator that prints a demand/capacity verdict at generation time, so a converged LP is a genuine schedule rather than a slack-penalty artefact.</li>
+      </ul>
+
+      <div class="callout">
+        <p>
+          The recurring lesson: <strong>profile before optimising, and fix the multiplier,
+          not the constant.</strong> Caching topology beat any solver tuning because it removed
+          a cost paid captains × iterations times; base-group pricing then attacked the
+          per-captain factor itself. Parallelising first would have meant more machines
+          burning time on work that shouldn't be repeated at all.
+        </p>
       </div>
-    </div>
-    <div class="menu-item dropdown">
-      <span class="menu-title">View</span>
-      <div class="dropdown-content">
-        <a href="#" class="theme-select active" data-theme="green">Matrix Green (CRT)</a>
-        <a href="#" class="theme-select" data-theme-name="amber">Amber Phosphor</a>
-        <a href="#" class="theme-select" data-theme-name="classic">Classic Monochrome</a>
-        <hr>
-        <a href="#" id="menu-toggle-scanlines">Disable Scanlines</a>
+
+      <h2>My role</h2>
+      <p>
+        Within a 7-person team I built the core engine — the RMP (<code>master_problem.py</code>),
+        the time-space network builder (<code>network.py</code>), the label-setting pricer
+        (<code>pricing.py</code>) and the SCIP pricer plugin — plus all four scaling levers above.
+        I also own the data and tooling layer: the Python loader reconciling 12 heterogeneous CSVs
+        (mixed delimiters, German date formats, dual time zones), a 17-page field-by-field data
+        guide with ER diagrams for the team, and the GitHub Actions CI running
+        <code>ruff</code> + <code>pytest</code> on every push.
+      </p>
+      <p style="font-style: italic; font-size: 0.85rem; color: var(--text-muted); margin-top: 12px;">
+        Note: the underlying crew and schedule data is confidential to Lufthansa Industry
+        Solutions, so the repository is private; the figures above are aggregate statistics
+        cleared for sharing.
+      </p>
+
+      <h2>Tech stack</h2>
+      <p style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+        <span class="project-tag-chip">Python 3.11</span>
+        <span class="project-tag-chip">SCIP (PySCIPOpt)</span>
+        <span class="project-tag-chip">Column Generation</span>
+        <span class="project-tag-chip">Branch-and-Price</span>
+        <span class="project-tag-chip">Set Partitioning MIP</span>
+        <span class="project-tag-chip">Label-setting RCSPP</span>
+        <span class="project-tag-chip">pandas</span>
+        <span class="project-tag-chip">NetworkX</span>
+        <span class="project-tag-chip">pytest</span>
+        <span class="project-tag-chip">GitHub Actions</span>
+      </p>
+
+      <div class="case-nav">
+        <a href="../index.html">← All projects</a>
+        <a href="berlin-stgnn.html">Next: Berlin Traffic ST-GNN →</a>
       </div>
-    </div>
-    <div class="system-time" id="menu-clock">12:00:00 PM</div>
-  </nav>
-
-  <main class="mac-window case container" style="max-width: 800px; margin: 60px auto 40px;">
-    <div class="mac-titlebar">
-      <button class="mac-close-btn" aria-label="Close" onclick="window.location.href='../index.html'"></button>
-      <div class="mac-titlebar-lines"></div>
-      <span class="mac-title">Case Study: Crew Scheduling</span>
-      <div class="mac-titlebar-lines"></div>
-    </div>
-    <div class="mac-content">
-  <a class="back" href="../index.html#projects">← back to projects</a>
-  <h1>Captain Scheduling Optimization for Eurowings</h1>
-  <p class="case-sub">
-    RWTH Aachen's Operations Research Practice Project with Eurowings (Lufthansa Group),
-    supervised by Prof. Dr. Marco Lübbecke, with operational data provided by Lufthansa Industry Solutions:
-    an integrated solver that builds and assigns complete, EASA-compliant captain rosters
-    in a single optimisation. The column-generation engine is complete and runs end-to-end;
-    current work is scaling it to the full instance. <em>Ongoing (SS 2026).</em>
-  </p>
-
-  <div class="case-facts">
-    <div class="fact"><b>432</b><span>captains</span></div>
-    <div class="fact"><b>52,885</b><span>flight legs</span></div>
-    <div class="fact"><b>8</b><span>European bases</span></div>
-    <div class="fact"><b>3 months</b><span>planning horizon</span></div>
-  </div>
-
-  <h2>The problem</h2>
-  <p>
-    Airline crew scheduling is one of the classic hard problems in operations research.
-    Every captain needs a legal, contiguous roster; every flight leg needs exactly one captain;
-    and the assignment must respect EASA flight-duty regulations alongside per-captain
-    preferences — off-claims, vacation, and base-level reserve quotas. The usual industrial
-    shortcut is to generate anonymous pairings first and roster them onto captains second.
-    We don't: the pricing subproblem constructs legal duties, pairings, rest, reserve shifts
-    and days off <strong>directly from raw legs</strong> into one personalised roster per
-    captain. Each master column is a fully EASA-compliant roster for one captain.
-  </p>
-
-  <h2>Architecture</h2>
-  <ul>
-    <li><strong>Master problem:</strong> Set Partitioning restricted master (RMP) with leg-coverage and daily base-reserve constraints, following Kasirzadeh et al. (2017). Branch-and-price is the planned extension.</li>
-    <li><strong>Pricing subproblem:</strong> label-setting resource-constrained shortest path on a per-captain time-space DAG, with EASA 7/14/28-day rolling duty and 28-day flight-time resources, overtime at duty close, and off-claim deviation at the sink.</li>
-    <li><strong>Solver:</strong> SCIP via PySCIPOpt, with a custom <code>Pricer</code> plugin registering negative-reduced-cost columns after each LP solve. Column generation with custom pricers is what SCIP is built for — Gurobi is kept only as a comparison benchmark.</li>
-  </ul>
-
-  <h2>Three design decisions worth telling</h2>
-  <ul>
-    <li><strong>Consecutive days off enforced by topology, not by a resource.</strong> The network emits home-base rest only as blocks of 2 or 3 days; since 2 and 3 additively generate every integer ≥ 2, any legal rest length is representable while a lone 1-day off is <em>structurally impossible</em>. No DP resource needed.</li>
-    <li><strong>Non-separable penalties live at the sink.</strong> Off-claim deviation depends on a captain's total days off across the horizon, which breaks label dominance. We track it on labels but exclude it from dominance, charging the penalty once at the sink.</li>
-    <li><strong>Nominal cost recovered from duality, not re-summed.</strong> The pricer returns reduced cost; true cost is recovered as <code>c = c_red + Σπ + μ + Σλ</code> across all three dual families, keeping column objectives consistent as duals move.</li>
-  </ul>
-
-  <h2>The scaling story: measure, then fix the thing that's actually slow</h2>
-  <p>
-    The engine converged on toy instances but hit a wall on a 25-captain, 1,797-leg slice:
-    building <em>one</em> captain's DAG took ~8.3 s and produced ~37k arcs, and the DAG was
-    rebuilt per captain, per iteration — roughly 200 seconds of pure graph construction
-    per pricing round before the solver could even re-solve the LP.
-  </p>
-  <ul>
-    <li><strong>Topology caching.</strong> A captain's DAG mixes two things that change on different clocks: the <em>shape</em> (decided by the flight schedule and EASA timing rules — identical in iteration 1 and 50) and the <em>arc costs</em> (fresh duals every round). The fix: build the captain-independent skeleton once per base, re-stamp only the dual-dependent costs each iteration, and turn hard absences into per-captain node masks instead of rebuilds. The ~200 s/round build wall disappeared.</li>
-    <li><strong>Bounded, vectorised construction.</strong> Replaced an O(legs²) <code>iterrows</code> double loop with a per-airport, departure-time-sorted bisect index, and capped outstation-overnight fan-out to the earliest legal next departures. Measured on a 644-leg weekly instance: <strong>total arcs −72%</strong> (16.7k → 4.7k), outstation arcs −93%, build time under 0.1 s — with all tests green, so arc semantics are preserved.</li>
-    <li><strong>Exact base-group pricing.</strong> Once duals are fixed, every captain of a base sees the same monetary arc costs; the captain-specific terms (availability dual, off-claim target) apply only at the sink and cannot change label dominance. So all absence-free captains share <em>one</em> pricing sweep, disaggregated per captain afterwards. Measured: <strong>70 → 27 sweeps per round, ~2.8× faster</strong> — and provably exact, pinned by a regression test asserting the converged LP is identical to per-captain pricing.</li>
-    <li><strong>Well-posed instances as a correctness requirement.</strong> Early experiment slices sampled legs and captains independently, so demand wildly exceeded crew capacity — column generation burned hundreds of rounds chasing legs that were physically uncoverable. Built a per-base weekly instance generator that prints a demand/capacity verdict at generation time, so a converged LP is a genuine schedule rather than a slack-penalty artefact.</li>
-  </ul>
-
-  <div class="callout">
-    <p>
-      The recurring lesson: <strong>profile before optimising, and fix the multiplier,
-      not the constant.</strong> Caching topology beat any solver tuning because it removed
-      a cost paid captains × iterations times; base-group pricing then attacked the
-      per-captain factor itself. Parallelising first would have meant more machines
-      burning time on work that shouldn't be repeated at all.
-    </p>
-  </div>
-
-  <h2>My role</h2>
-  <p>
-    Within a 7-person team I built the core engine — the RMP (<code>master_problem.py</code>),
-    the time-space network builder (<code>network.py</code>), the label-setting pricer
-    (<code>pricing.py</code>) and the SCIP pricer plugin — plus all four scaling levers above.
-    I also own the data and tooling layer: the Python loader reconciling 12 heterogeneous CSVs
-    (mixed delimiters, German date formats, dual time zones), a 17-page field-by-field data
-    guide with ER diagrams for the team, and the GitHub Actions CI running
-    <code>ruff</code> + <code>pytest</code> on every push.
-  </p>
-  <p>
-    <em>Note: the underlying crew and schedule data is confidential to Lufthansa Industry
-    Solutions, so the repository is private; the figures above are aggregate statistics
-    cleared for sharing.</em>
-  </p>
-
-  <h2>Tech stack</h2>
-  <p>
-    <code>Python 3.11</code> <code>SCIP (PySCIPOpt)</code> <code>Column Generation</code>
-    <code>Branch-and-Price</code> <code>Set Partitioning MIP</code> <code>Label-setting RCSPP</code>
-    <code>pandas</code> <code>NetworkX</code> <code>pytest</code> <code>GitHub Actions</code>
-  </p>
-
-  <div class="case-nav">
-    <a href="../index.html#projects">← All projects</a>
-    <a href="berlin-stgnn.html">Next: Berlin Traffic ST-GNN →</a>
-  </div>
     </div>
   </main>
-
-<footer>
-  <div class="container">© 2026 Harjasdeep Singh Allahabadia</div>
-</footer>
 
 </body>
 </html>

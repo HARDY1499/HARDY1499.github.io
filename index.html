@@ -3,322 +3,538 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Harjasdeep Singh — ML, Optimization & Data Engineering</title>
+  <title>Harjasdeep Singh — Developer Analytics Dashboard</title>
   <meta name="description" content="M.Sc. Data Analytics & Decision Science at RWTH Aachen. Machine learning, mathematical optimization, and LLM agent systems, backed by 3 years of production full-stack and data engineering." />
-  
-  <!-- Retro pixel and monospace fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/style.css" />
-  <script src="assets/main.js"></script>
+  <script src="assets/projects.js" defer></script>
+  <script src="assets/main.js" defer></script>
 </head>
-<body class="crt-active" data-theme="green">
+<body data-theme="dark" data-accent="emerald">
 
-  <!-- CRT Overlay for scanlines and phosphor glow -->
-  <div class="crt-overlay"></div>
+  <div class="app-container">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+      <div class="profile-card">
+        <div class="profile-img-container">
+          <img class="profile-img" src="assets/profile.jpg" alt="Harjasdeep Singh Allahabadia" />
+          <div class="profile-status-dot" title="Active in Aachen"></div>
+        </div>
+        <h2 class="profile-name">Harjasdeep Singh</h2>
+        <p class="profile-title">ML &amp; Optimization Engineer</p>
+        <div class="profile-location">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span>Aachen, Germany</span>
+        </div>
+      </div>
 
-  <!-- Screensaver Canvas (hidden by default, activates on idle) -->
-  <canvas id="screensaver-canvas"></canvas>
+      <nav class="sidebar-nav" aria-label="Main Navigation">
+        <button class="nav-btn active" data-tab="overview">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="9" rx="1"/>
+            <rect x="14" y="3" width="7" height="5" rx="1"/>
+            <rect x="14" y="12" width="7" height="9" rx="1"/>
+            <rect x="3" y="16" width="7" height="5" rx="1"/>
+          </svg>
+          <span>Overview</span>
+        </button>
+        <button class="nav-btn" data-tab="projects">
+          <svg viewBox="0 0 24 24">
+            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+          </svg>
+          <span>Projects Explorer</span>
+        </button>
+        <button class="nav-btn" data-tab="experience">
+          <svg viewBox="0 0 24 24">
+            <path d="M20 7h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 4h4v3h-4V4z"/>
+          </svg>
+          <span>Experience Logs</span>
+        </button>
+        <button class="nav-btn" data-tab="skills">
+          <svg viewBox="0 0 24 24">
+            <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 2.17l-5.7 5.7a6 6 0 01-2.17 7.94l3.77-3.77a1 1 0 000-1.4l-1.6-1.6a1 1 0 00-1.4 0l-3.77 3.77a6 6 0 012.17-7.94l5.7-5.7a6 6 0 017.94-2.17l-3.77 3.77z"/>
+          </svg>
+          <span>Skills Matrix</span>
+        </button>
+        <button class="nav-btn" data-tab="contact">
+          <svg viewBox="0 0 24 24">
+            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+          </svg>
+          <span>Contact Portal</span>
+        </button>
+      </nav>
 
-  <!-- Retro System Menu Bar -->
-  <nav class="system-menu-bar">
-    <div class="menu-item dropdown">
-      <span class="menu-title">◆</span>
-      <div class="dropdown-content">
-        <a href="#" id="menu-about-trigger">About This System...</a>
-        <hr>
-        <span class="dropdown-label">System 1.0</span>
+      <div class="sidebar-system-widget">
+        <div class="sys-widget-row">
+          <span>Aachen Time:</span>
+          <strong id="sidebar-time">--:--:--</strong>
+        </div>
+        <div class="sys-widget-row">
+          <span>GPA / Grade:</span>
+          <strong>1.5 (RWTH)</strong>
+        </div>
+        <div class="sys-widget-row" style="align-items: center;">
+          <span>Status:</span>
+          <span style="display: flex; align-items: center;"><span class="sys-heartbeat"></span><strong>Active</strong></span>
+        </div>
       </div>
-    </div>
-    <div class="menu-item dropdown">
-      <span class="menu-title">File</span>
-      <div class="dropdown-content">
-        <a href="javascript:window.print()">Print Resume</a>
-        <a href="mailto:your.email@example.com">Send Email</a>
-      </div>
-    </div>
-    <div class="menu-item dropdown">
-      <span class="menu-title">View</span>
-      <div class="dropdown-content">
-        <a href="#" class="theme-select active" data-theme="green">Matrix Green (CRT)</a>
-        <a href="#" class="theme-select" data-theme="amber">Amber Phosphor</a>
-        <a href="#" class="theme-select" data-theme="classic">Classic Monochrome</a>
-        <hr>
-        <a href="#" id="menu-toggle-scanlines">Disable Scanlines</a>
-      </div>
-    </div>
-    <div class="menu-item dropdown">
-      <span class="menu-title">Special</span>
-      <div class="dropdown-content">
-        <a href="#" id="menu-run-screensaver">Run Screensaver</a>
-        <a href="#" id="menu-reset-windows">Reset Window Positions</a>
-      </div>
-    </div>
-    <div class="system-time" id="menu-clock">12:00:00 PM</div>
-  </nav>
+    </aside>
 
-  <!-- About System Dialog Box (Modal) -->
-  <div id="about-dialog" class="mac-window dialog-box" style="display: none;">
-    <div class="mac-titlebar">
-      <div class="mac-titlebar-lines" style="margin-left: 0;"></div>
-      <span class="mac-title">About This System</span>
-      <div class="mac-titlebar-lines" style="margin-right: 0;"></div>
-    </div>
-    <div class="mac-content dialog-content">
-      <div class="dialog-body">
-        <div class="dialog-icon-wrapper">
-          <!-- Small pixel art computer representation -->
-          <svg class="pixel-computer-svg" viewBox="0 0 32 32" width="64" height="64">
-            <path d="M4,4 h24 v16 h-24 z" fill="none" stroke="currentColor" stroke-width="2"/>
-            <path d="M7,7 h18 v10 h-18 z" fill="none" stroke="currentColor" stroke-width="1"/>
-            <path d="M4,20 l-2,6 h28 l-2,-6 z" fill="none" stroke="currentColor" stroke-width="2"/>
-            <path d="M11,23 h10" fill="none" stroke="currentColor" stroke-width="2"/>
-            <rect x="8" y="10" width="3" height="3" fill="currentColor"/>
-            <rect x="21" y="10" width="3" height="3" fill="currentColor"/>
-            <path d="M12,15 q4,-2 8,0" fill="none" stroke="currentColor" stroke-width="1"/>
+    <!-- MAIN WORKSPACE CONTENT -->
+    <main class="main-content">
+      
+      <!-- Top header strip -->
+      <header class="app-header">
+        <div class="header-welcome">
+          <h1 id="header-panel-title">System Panel // Overview</h1>
+          <p>Harjasdeep Singh Allahabadia — Professional Portfolio Command</p>
+        </div>
+        
+        <div class="header-controls">
+          <div class="accent-selector" title="Switch Accent Preset">
+            <button class="accent-dot emerald active" data-accent="emerald" aria-label="Emerald Accent"></button>
+            <button class="accent-dot indigo" data-accent="indigo" aria-label="Indigo Accent"></button>
+            <button class="accent-dot amber" data-accent="amber" aria-label="Amber Accent"></button>
+          </div>
+          
+          <button class="icon-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+            <!-- Moon Icon -->
+            <svg id="theme-icon-moon" viewBox="0 0 24 24">
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+            </svg>
+            <!-- Sun Icon (hidden by default) -->
+            <svg id="theme-icon-sun" viewBox="0 0 24 24" style="display: none;">
+              <circle cx="12" cy="12" r="5"/>
+              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 18.36l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+          </button>
+          
+          <a class="icon-btn" href="https://github.com/HARDY1499" target="_blank" rel="noopener" aria-label="GitHub Profile" title="Open GitHub">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/>
+            </svg>
+          </a>
+          
+          <a class="icon-btn" href="https://linkedin.com/in/harjasdeep14" target="_blank" rel="noopener" aria-label="LinkedIn Profile" title="Open LinkedIn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+              <circle cx="4" cy="4" r="2"/>
+            </svg>
+          </a>
+        </div>
+      </header>
+
+      <!-- Panel Viewport -->
+      <div class="panel-viewport">
+        
+        <!-- TAB 1: OVERVIEW -->
+        <section class="panel-view active" id="panel-overview">
+          <div class="objective-alert">
+            <div class="alert-content">
+              <h3>Internship Recruitment WS 26-27</h3>
+              <p>Actively seeking Machine Learning / Data Science / Operations Research internships or Werkstudent positions in Germany. Relocation-flexible.</p>
+            </div>
+            <span class="alert-badge">Open for Roles</span>
+          </div>
+
+          <div class="analytics-grid">
+            <div class="stat-card">
+              <div class="stat-label">Production Experience</div>
+              <div class="stat-value">3 Years</div>
+              <div class="stat-desc">Sapient B2C engineering pipelines</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">RWTH Grade (M.Sc)</div>
+              <div class="stat-value">1.5</div>
+              <div class="stat-desc">Data Analytics &amp; Decision Science</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Featured Projects</div>
+              <div class="stat-value">4 Core</div>
+              <div class="stat-desc">Optimization, ML, LLM, WebSockets</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Core Tech Stack</div>
+              <div class="stat-value">25+ Chips</div>
+              <div class="stat-desc">PyTorch, Gurobi, Supabase, SCIP</div>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Profile Summary</span>
+            </div>
+            <div class="bio-text">
+              <p>I am an M.Sc. student in <strong>Data Analytics and Decision Science</strong> at <strong>RWTH Aachen University</strong>, combining strong theoretical knowledge in optimization, linear/integer programming, and algorithms with <strong>3 years of industrial production experience</strong> in full-stack and data engineering at Publicis Sapient.</p>
+              <br>
+              <p>My current research and coursework focus heavily on **Graph Neural Networks (GNNs)**, advanced deep learning models, LLM agent systems, and solving large-scale mathematical optimization tasks (e.g., set partitioning with column generation). I enjoy bridging complex algorithms and mathematical models with scalable, high-throughput software architectures.</p>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">
+              <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              <span>Featured Academic Coursework</span>
+            </div>
+            <div class="bio-text">
+              <ul style="margin-left: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
+                <li><strong>Advanced Machine Learning</strong> (Grade: 1.3 - PyTorch deep learning structures)</li>
+                <li><strong>Optimization Models</strong> (Integer &amp; Linear programming models)</li>
+                <li><strong>Operations Research</strong> (Algorithms, simplex, complexity theories)</li>
+                <li><strong>Predictive Modeling</strong> (Regression, time series, classification)</li>
+                <li><strong>Algorithms and Data Structures</strong> (Complexity, graph searches)</li>
+                <li><strong>Financial Analytics</strong> (Quantitative models, portfolio weights)</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: PROJECTS -->
+        <section class="panel-view" id="panel-projects">
+          <div class="search-filter-bar">
+            <div class="search-input-wrapper">
+              <svg class="search-icon" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <input class="search-input" id="project-search-input" type="text" placeholder="Search by project name or tech stack..." aria-label="Search Projects" />
+            </div>
+            <div class="filter-chips" id="tech-filter-chips" aria-label="Filter by Tech Category">
+              <button class="filter-chip active" data-filter="all">All Tech</button>
+              <button class="filter-chip" data-filter="Python">Python</button>
+              <button class="filter-chip" data-filter="PyTorch">PyTorch / GNN</button>
+              <button class="filter-chip" data-filter="Optimization">Optimization / MIP</button>
+              <button class="filter-chip" data-filter="Web">WebSockets / Supabase</button>
+            </div>
+          </div>
+
+          <div class="project-card-grid" id="project-dashboard-grid">
+            <!-- Rendered dynamically from projects.js -->
+          </div>
+
+          <!-- Dynamic SVG Chart Widget simulating a Loss Curve/Scheduler feedback -->
+          <div class="chart-widget">
+            <div class="dashboard-card">
+              <div class="dashboard-card-title">
+                <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 118 2.83M22 12A10 10 0 0012 2v10z"/></svg>
+                <span>Dynamic Optimizer Analysis // GNN Convergence Simulation</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+                Interactive simulation plotting validation loss (L1) vs. training epochs. Click data nodes to view epoch performance metrics.
+              </p>
+              <div class="svg-chart-container">
+                <svg class="loss-curve-svg" viewBox="0 0 500 160">
+                  <!-- Chart grids -->
+                  <line x1="40" y1="20" x2="40" y2="130" class="chart-axis" />
+                  <line x1="40" y1="130" x2="480" y2="130" class="chart-axis" />
+                  <line x1="40" y1="20" x2="480" y2="20" class="chart-grid-line" />
+                  <line x1="40" y1="56" x2="480" y2="56" class="chart-grid-line" />
+                  <line x1="40" y1="93" x2="480" y2="93" class="chart-grid-line" />
+
+                  <!-- Text Labels -->
+                  <text x="35" y="130" class="chart-text" text-anchor="end">0.0</text>
+                  <text x="35" y="93" class="chart-text" text-anchor="end">0.3</text>
+                  <text x="35" y="56" class="chart-text" text-anchor="end">0.6</text>
+                  <text x="35" y="20" class="chart-text" text-anchor="end">0.9</text>
+
+                  <text x="40" y="145" class="chart-text" text-anchor="middle">Ep 1</text>
+                  <text x="128" y="145" class="chart-text" text-anchor="middle">Ep 10</text>
+                  <text x="216" y="145" class="chart-text" text-anchor="middle">Ep 20</text>
+                  <text x="304" y="145" class="chart-text" text-anchor="middle">Ep 30</text>
+                  <text x="392" y="145" class="chart-text" text-anchor="middle">Ep 40</text>
+                  <text x="480" y="145" class="chart-text" text-anchor="middle">Ep 50</text>
+
+                  <!-- Loss Curve path -->
+                  <path d="M40 28 Q 128 90 216 110 T 392 120 T 480 123" class="chart-line" id="loss-curve-path" />
+
+                  <!-- Interactive Nodes -->
+                  <circle cx="40" cy="28" r="4.5" class="chart-dot" data-epoch="1" data-val="0.842" />
+                  <circle cx="128" cy="73" r="4.5" class="chart-dot" data-epoch="10" data-val="0.495" />
+                  <circle cx="216" cy="110" r="4.5" class="chart-dot" data-epoch="20" data-val="0.198" />
+                  <circle cx="304" cy="118" r="4.5" class="chart-dot" data-epoch="30" data-val="0.103" />
+                  <circle cx="392" cy="120" r="4.5" class="chart-dot" data-epoch="40" data-val="0.089" />
+                  <circle cx="480" cy="123" r="4.5" class="chart-dot" data-epoch="50" data-val="0.064" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: EXPERIENCE -->
+        <section class="panel-view" id="panel-experience">
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">
+              <svg viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+              <span>Professional &amp; Academic Timeline</span>
+            </div>
+            
+            <div class="timeline-container">
+              
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-header">
+                  <span class="timeline-company">RWTH Aachen University</span>
+                  <span class="timeline-date">2025 – expected Sep 2027</span>
+                </div>
+                <div class="timeline-role">M.Sc. Data Analytics and Decision Science · Current GPA: 1.5</div>
+                <div class="timeline-content">
+                  <ul>
+                    <li>Specialized study of neural network structures, combinatorial optimization algorithms, integer programming techniques, set partitioning, and operations research.</li>
+                    <li>Conducting practical optimization engineering and GNN modelling across large scale transport and logistics grids.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-header">
+                  <span class="timeline-company">Publicis Sapient</span>
+                  <span class="timeline-date">Mar 2022 – Jul 2024</span>
+                </div>
+                <div class="timeline-role">Associate Technology L1 · Gurugram, India</div>
+                <div class="timeline-content">
+                  <ul>
+                    <li>Engineered and scaled behavioral analytics capturing systems across 4 cosmetic brand web stores (Shiseido, NARS, Clé de Peau Beauté, Drunk Elephant), feeding streaming event pipelines for downstream modeling.</li>
+                    <li>Designed real-time automated inventory ETL sync nodes on brand systems yielding over $9B in global annual revenue, optimizing inventory update speeds.</li>
+                    <li>Integrated Extole marketing referral structures securely using transactional APIs.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-header">
+                  <span class="timeline-company">Publicis Sapient</span>
+                  <span class="timeline-date">Sep 2021 – Mar 2022</span>
+                </div>
+                <div class="timeline-role">Junior Associate Technology · Gurugram, India</div>
+                <div class="timeline-content">
+                  <ul>
+                    <li>Created modular commerce backend microservices handling high concurrent loads while ensuring transaction durability.</li>
+                    <li>Wrote location-aware route calculation algorithms to recommend shipping routes, filtering nodes to rank optimal delivery routes.</li>
+                  </ul>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 4: SKILLS -->
+        <section class="panel-view" id="panel-skills">
+          <div class="skills-matrix-grid">
+            
+            <div class="skill-matrix-card">
+              <div class="skill-matrix-title">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                <span>Machine Learning &amp; AI</span>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">PyTorch &amp; Deep Learning</span><span class="skill-level">Advanced</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 88%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">Graph Neural Networks (PyG)</span><span class="skill-level">Proficient</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 80%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">LLM Agents (LangGraph, RAG)</span><span class="skill-level">Proficient</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 78%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">scikit-learn &amp; Data Prep</span><span class="skill-level">Advanced</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 90%;"></div></div>
+              </div>
+            </div>
+
+            <div class="skill-matrix-card">
+              <div class="skill-matrix-title">
+                <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+                <span>Optimization &amp; OR</span>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">MIP / LP Formulation</span><span class="skill-level">Advanced</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 85%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">Column Gen &amp; Branch-and-Price</span><span class="skill-level">Proficient</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 75%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">Solvers (Gurobi, SCIP / PySCIPopt)</span><span class="skill-level">Proficient</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 80%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">Network Science (NetworkX, Graphs)</span><span class="skill-level">Advanced</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 85%;"></div></div>
+              </div>
+            </div>
+
+            <div class="skill-matrix-card">
+              <div class="skill-matrix-title">
+                <svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+                <span>Programming Languages</span>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">Python (pandas, NumPy, SciPy)</span><span class="skill-level">Expert</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 95%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">SQL (PostgreSQL, BigQuery)</span><span class="skill-level">Advanced</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 88%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">C++ &amp; Algorithms</span><span class="skill-level">Proficient</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 75%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">Java &amp; OOP</span><span class="skill-level">Proficient</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 80%;"></div></div>
+              </div>
+            </div>
+
+            <div class="skill-matrix-card">
+              <div class="skill-matrix-title">
+                <svg viewBox="0 0 24 24"><path d="M2 17l10 5 10-5M2 12l10 5 10-5M12 2L2 7l10 5 10-5-10-5z"/></svg>
+                <span>Data &amp; Cloud Systems</span>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">ETL &amp; Data Pipeline Design</span><span class="skill-level">Advanced</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 86%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">Docker Containers &amp; Linux</span><span class="skill-level">Proficient</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 80%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">FastAPI &amp; REST APIs</span><span class="skill-level">Advanced</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 85%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info"><span class="skill-name">Supabase &amp; Vector Databases</span><span class="skill-level">Proficient</span></div>
+                <div class="skill-progress-bg"><div class="skill-progress-bar" style="width: 78%;"></div></div>
+              </div>
+            </div>
+            
+          </div>
+        </section>
+
+        <!-- TAB 5: CONTACT PORTAL -->
+        <section class="panel-view" id="panel-contact">
+          <div class="contact-layout">
+            
+            <div class="dashboard-card">
+              <div class="dashboard-card-title">
+                <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+                <span>Send a Message</span>
+              </div>
+              
+              <form class="contact-form" id="portfolio-contact-form" onsubmit="event.preventDefault(); handleFormSubmit();">
+                <input type="hidden" name="access_key" value="2eba3cf9-e4b1-4d2c-817a-4e078c9a8757" id="web3forms-access-key" />
+                <div class="form-group">
+                  <label for="contact-name">Name</label>
+                  <input class="form-input" id="contact-name" type="text" required placeholder="Your name or company" />
+                </div>
+                <div class="form-group">
+                  <label for="contact-email">Email</label>
+                  <input class="form-input" id="contact-email" type="email" required placeholder="your.name@company.com" />
+                </div>
+                <div class="form-group">
+                  <label for="contact-message">Message</label>
+                  <textarea class="form-textarea" id="contact-message" required placeholder="Detail your project opportunity or query here..."></textarea>
+                </div>
+                <button class="btn-submit" type="submit">
+                  <span>Transmit Query</span>
+                  <svg viewBox="0 0 24 24">
+                    <line x1="22" y1="2" x2="11" y2="13"/><polyline points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+
+            <div class="terminal-widget">
+              <div class="terminal-header">
+                <div class="terminal-dots">
+                  <span class="terminal-dot-node red"></span>
+                  <span class="terminal-dot-node yellow"></span>
+                  <span class="terminal-dot-node green"></span>
+                </div>
+                <div class="terminal-title">interactive-console // bash</div>
+              </div>
+              
+              <div class="terminal-body" id="interactive-terminal-body">
+                <div class="terminal-line system">=== PORTFOLIO DYNAMIC SHELL v1.2 ===</div>
+                <div class="terminal-line">Welcome! Type <span class="success">/help</span> to list available interactive commands.</div>
+              </div>
+              
+              <div class="terminal-input-row">
+                <span class="terminal-prompt">harjasdeep$</span>
+                <input class="terminal-input" id="interactive-terminal-input" type="text" placeholder="Type a command..." aria-label="Terminal Command Input" autocomplete="off" />
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+
+      <!-- SYSTEM CONSOLE EVENT LOG DRAWER -->
+      <footer class="console-drawer" id="console-drawer">
+        <div class="console-title-bar" id="console-drawer-titlebar" aria-expanded="true" aria-controls="console-log-viewport">
+          <div class="console-title-left">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span>Live System Events Console</span>
+          </div>
+          
+          <svg class="console-chevron" viewBox="0 0 24 24" width="14" height="14">
+            <polyline points="6 9 12 15 18 9"/>
           </svg>
         </div>
-        <div class="dialog-text">
-          <h2>System 1.0</h2>
-          <p>Vintage CRT Portfolio System</p>
-          <p>Designed for Harjasdeep Singh Allahabadia</p>
-          <hr class="pixel-divider">
-          <p class="dialog-stat">RAM: 128K (88K free)</p>
-          <p class="dialog-stat">Co-processor: Gemini AI 3.5</p>
+        
+        <div class="console-log-viewport" id="console-log-viewport">
+          <div class="log-entry">
+            <span class="log-timestamp">[20:42:15]</span>
+            <span class="log-tag sys">[SYS]</span>
+            <span class="log-message">Developer Command Dashboard initialised. Connecting sensors...</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-timestamp">[20:42:16]</span>
+            <span class="log-tag data">[DATA]</span>
+            <span class="log-message">Local database cache: loaded 4 projects, 3 experience records, 16 skills variables.</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-timestamp">[20:42:16]</span>
+            <span class="log-tag sys">[SYS]</span>
+            <span class="log-message">State synchronization complete. Port 80 open (Aachen Gateway).</span>
+          </div>
         </div>
-      </div>
-      <div class="dialog-actions">
-        <button class="btn-retro" id="close-about-dialog">OK</button>
-      </div>
-    </div>
+      </footer>
+
+    </main>
+
   </div>
 
-  <!-- Main Desktop Space -->
-  <main id="desktop">
-
-    <!-- Desktop Icons for quick launch -->
-    <div class="desktop-icons">
-      <button class="desktop-icon" data-target="window-about">
-        <svg viewBox="0 0 32 32" class="pixel-icon">
-          <!-- Folder with user inside -->
-          <path d="M2,6 h8 l2,4 h18 v18 h-28 z" fill="none" stroke="currentColor" stroke-width="2"/>
-          <circle cx="16" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path d="M11,24 q5,-5 10,0" fill="none" stroke="currentColor" stroke-width="2"/>
+  <!-- NATIVE DETAILED MODAL SLIDE-OVER FOR CASE STUDIES -->
+  <dialog class="case-study-slideover" id="case-study-slideover" closedby="any" aria-labelledby="slideover-title">
+    <div class="slideover-header">
+      <h2 id="slideover-title" class="profile-name" style="margin-bottom: 0;">Case Study Explorer</h2>
+      <button class="slideover-close-btn" commandfor="case-study-slideover" command="close" aria-label="Close Case Study Details">
+        <span>Close Details</span>
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
-        <span>About Me</span>
-      </button>
-
-      <button class="desktop-icon" data-target="window-projects">
-        <svg viewBox="0 0 32 32" class="pixel-icon">
-          <!-- Floppy Disk -->
-          <path d="M4,4 h20 l4,4 v20 h-24 z" fill="none" stroke="currentColor" stroke-width="2"/>
-          <rect x="8" y="4" width="12" height="8" fill="none" stroke="currentColor" stroke-width="2"/>
-          <rect x="8" y="18" width="16" height="10" fill="none" stroke="currentColor" stroke-width="2"/>
-          <rect x="18" y="6" width="2" height="4" fill="currentColor"/>
-        </svg>
-        <span>Projects</span>
-      </button>
-
-      <button class="desktop-icon" data-target="window-experience">
-        <svg viewBox="0 0 32 32" class="pixel-icon">
-          <!-- Document / Clipboard -->
-          <path d="M6,2 h14 l6,6 v22 h-20 z" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path d="M20,2 v6 h6" fill="none" stroke="currentColor" stroke-width="2"/>
-          <line x1="10" y1="14" x2="22" y2="14" stroke="currentColor" stroke-width="2"/>
-          <line x1="10" y1="19" x2="22" y2="19" stroke="currentColor" stroke-width="2"/>
-          <line x1="10" y1="24" x2="18" y2="24" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span>Experience</span>
-      </button>
-
-      <button class="desktop-icon" data-target="window-skills">
-        <svg viewBox="0 0 32 32" class="pixel-icon">
-          <!-- Toolbox -->
-          <path d="M4,10 h24 v18 h-24 z" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path d="M10,10 v-4 h12 v4" fill="none" stroke="currentColor" stroke-width="2"/>
-          <circle cx="16" cy="18" r="2" fill="currentColor"/>
-          <path d="M4,18 h24" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2,2"/>
-        </svg>
-        <span>Skills</span>
-      </button>
-
-      <button class="desktop-icon" data-target="window-contact">
-        <svg viewBox="0 0 32 32" class="pixel-icon">
-          <!-- Mailbox -->
-          <path d="M4,12 q0,-6 12,-6 t12,6 v14 h-24 z" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path d="M4,26 h24" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path d="M20,12 l-4,4 l-4,-4" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path d="M24,20 v-8 h2" fill="none" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span>Contact</span>
       </button>
     </div>
+    
+    <div class="slideover-body" id="case-study-body">
+      <!-- AJAX injected case study content goes here -->
+    </div>
+  </dialog>
 
-    <!-- WINDOW 1: ABOUT ME -->
-    <section class="mac-window" id="window-about">
-      <div class="mac-titlebar">
-        <button class="mac-close-btn" aria-label="Close" data-target="window-about"></button>
-        <div class="mac-titlebar-lines"></div>
-        <span class="mac-title">About Me</span>
-        <div class="mac-titlebar-lines"></div>
-      </div>
-      <div class="mac-content">
-        <header class="hero">
-          <img class="hero-photo" src="assets/avatar.png" alt="Pixel Art Avatar of Harjasdeep Singh Allahabadia" width="480" height="480" />
-          <span class="kicker">// machine learning · optimization · data engineering</span>
-          <h1>Harjasdeep Singh Allahabadia</h1>
-          <p class="tagline">
-            M.Sc. student in <strong>Data Analytics &amp; Decision Science</strong> at RWTH Aachen
-            (Grade 1.5), with <strong>3 years of production engineering</strong> at
-            Publicis Sapient — full-stack development with data-engineering work. Current work spans graph neural networks, LLM agent systems,
-            and large-scale mathematical optimization.
-          </p>
-          <div class="hero-meta">
-            <span>📍 Aachen, Germany</span>
-            <span>🎓 RWTH Aachen · expected Sep 2027</span>
-            <span>💼 Seeking WS26–27 internship</span>
-          </div>
-          <div class="hero-cta">
-            <button class="btn btn-primary nav-window-trigger" data-target="window-projects">View projects</button>
-            <a class="btn btn-ghost" href="https://github.com/HARDY1499" target="_blank" rel="noopener">GitHub</a>
-            <a class="btn btn-ghost" href="https://linkedin.com/in/harjasdeep14" target="_blank" rel="noopener">LinkedIn</a>
-          </div>
-        </header>
-      </div>
-    </section>
-
-    <!-- WINDOW 2: PROJECTS -->
-    <section class="mac-window" id="window-projects">
-      <div class="mac-titlebar">
-        <button class="mac-close-btn" aria-label="Close" data-target="window-projects"></button>
-        <div class="mac-titlebar-lines"></div>
-        <span class="mac-title">Projects</span>
-        <div class="mac-titlebar-lines"></div>
-      </div>
-      <div class="mac-content">
-        <p class="section-label">selected work</p>
-        <h2>Projects</h2>
-        <div class="project-grid" id="project-grid"><!-- rendered from assets/projects.js --></div>
-      </div>
-    </section>
-
-    <!-- WINDOW 3: EXPERIENCE -->
-    <section class="mac-window" id="window-experience">
-      <div class="mac-titlebar">
-        <button class="mac-close-btn" aria-label="Close" data-target="window-experience"></button>
-        <div class="mac-titlebar-lines"></div>
-        <span class="mac-title">Experience</span>
-        <div class="mac-titlebar-lines"></div>
-      </div>
-      <div class="mac-content">
-        <p class="section-label">background</p>
-        <h2>Experience</h2>
-
-        <div class="xp-item">
-          <div class="xp-head">
-            <h3>RWTH Aachen University</h3>
-            <span class="xp-date">2025 – expected Sep 2027</span>
-          </div>
-          <p class="xp-role">M.Sc. Data Analytics and Decision Science · Grade 1.5</p>
-          <ul>
-            <li>Coursework: Advanced Machine Learning (Grade 1.3; PyTorch, deep learning), Algorithms &amp; Data Structures, Predictive Modeling, Optimization Models (integer &amp; linear programming), Operations Research, Financial Analytics.</li>
-          </ul>
-        </div>
-
-        <div class="xp-item">
-          <div class="xp-head">
-            <h3>Publicis Sapient</h3>
-            <span class="xp-date">Mar 2022 – Jul 2024</span>
-          </div>
-          <p class="xp-role">Associate Technology L1 · Gurugram, India</p>
-          <ul>
-            <li>Engineered behavioral data pipelines across 4 Shiseido Americas brand properties (Shiseido, NARS, Clé de Peau Beauté, Drunk Elephant), instrumenting client-side event capture to feed downstream analytics and modeling workflows.</li>
-            <li>Built automated ETL pipelines synchronizing inventory datasets in real time across distributed platform components, on brand portfolios generating $9B+ in annual revenue.</li>
-            <li>Integrated the Extole referral platform via REST API to capture cross-channel attribution events.</li>
-          </ul>
-        </div>
-
-        <div class="xp-item">
-          <div class="xp-head">
-            <h3>Publicis Sapient</h3>
-            <span class="xp-date">Sep 2021 – Mar 2022</span>
-          </div>
-          <p class="xp-role">Junior Associate Technology · Gurugram, India</p>
-          <ul>
-            <li>Developed backend services for high-traffic B2C commerce platforms, maintaining data integrity under production load.</li>
-            <li>Designed and optimized a shipping-method recommendation algorithm that parsed user location data to compute and rank optimal shipping routes.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- WINDOW 4: SKILLS -->
-    <section class="mac-window" id="window-skills">
-      <div class="mac-titlebar">
-        <button class="mac-close-btn" aria-label="Close" data-target="window-skills"></button>
-        <div class="mac-titlebar-lines"></div>
-        <span class="mac-title">Technical Skills</span>
-        <div class="mac-titlebar-lines"></div>
-      </div>
-      <div class="mac-content">
-        <p class="section-label">toolbox</p>
-        <h2>Technical Skills</h2>
-        <div class="skills-grid">
-          <div class="skill-group">
-            <h4>Machine Learning &amp; AI</h4>
-            <p>PyTorch · scikit-learn · Graph Neural Networks · Deep Learning · LLMs · Agentic Workflows (LangGraph, ReAct) · RAG</p>
-          </div>
-          <div class="skill-group">
-            <h4>Optimization &amp; OR</h4>
-            <p>MIP / LP · Column Generation · Branch-and-Price · Set Partitioning · SCIP (PySCIPopt) · Gurobi · Resource-Constrained Shortest Path · NetworkX</p>
-          </div>
-          <div class="skill-group">
-            <h4>Programming &amp; Analytics</h4>
-            <p>Python (pandas, NumPy, SciPy) · C++ · Java · SQL (PostgreSQL, BigQuery) · Statistical Modeling · Power BI</p>
-          </div>
-          <div class="skill-group">
-            <h4>Data &amp; Cloud Engineering</h4>
-            <p>ETL Pipelines · REST APIs · FastAPI · ChromaDB · GCP · Docker · Linux · Git · GitHub Actions · Prometheus</p>
-          </div>
-          <div class="skill-group">
-            <h4>Web &amp; Mobile</h4>
-            <p>React Native (Expo) · TypeScript · Supabase (PostgreSQL, Realtime, Row-Level Security) · WebSockets · Node.js</p>
-          </div>
-          <div class="skill-group">
-            <h4>Languages</h4>
-            <p>English (C2) · German (B1, progressing toward B2)</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- WINDOW 5: CONTACT -->
-    <section class="mac-window" id="window-contact">
-      <div class="mac-titlebar">
-        <button class="mac-close-btn" aria-label="Close" data-target="window-contact"></button>
-        <div class="mac-titlebar-lines"></div>
-        <span class="mac-title">Get In Touch</span>
-        <div class="mac-titlebar-lines"></div>
-      </div>
-      <div class="mac-content">
-        <div class="contact-box">
-          <p class="section-label">get in touch</p>
-          <h2>Open to WS26–27 internships in Germany</h2>
-          <p>Based in Aachen, willing to relocate. Eligible for Werkstudent roles and internships under enrolled-student work rights.</p>
-          <div class="hero-cta" style="justify-content:center;">
-            <a class="btn btn-primary" href="mailto:your.email@example.com">your.email@example.com</a>
-            <a class="btn btn-ghost" href="https://linkedin.com/in/harjasdeep14" target="_blank" rel="noopener">LinkedIn</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <footer>
-    <div class="container">© 2026 Harjasdeep Singh Allahabadia · built with plain HTML/CSS/JS</div>
-  </footer>
-
-  <script src="assets/projects.js"></script>
 </body>
 </html>

@@ -5,117 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Enterprise Market Intelligence Copilot — Harjasdeep Singh</title>
   <meta name="description" content="Local-first LLM agent combining SQL generation and semantic search to answer enterprise market questions — LangGraph, Gemma, ChromaDB, FastAPI." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/style.css" />
-  <script src="../assets/main.js"></script>
 </head>
-<body class="crt-active" data-theme="green">
+<body class="standalone-case-body" data-theme="dark" data-accent="emerald">
 
-  <!-- CRT Overlay for scanlines and phosphor glow -->
-  <div class="crt-overlay"></div>
+  <main class="standalone-case-container">
+    <a class="standalone-back-btn" href="../index.html">
+      <svg viewBox="0 0 24 24">
+        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+      </svg>
+      <span>Back to Command Center</span>
+    </a>
 
-  <!-- Retro System Menu Bar -->
-  <nav class="system-menu-bar">
-    <div class="menu-item dropdown">
-      <span class="menu-title">◆</span>
-      <div class="dropdown-content">
-        <a href="../index.html">Back to Desktop</a>
-        <hr>
-        <span class="dropdown-label">System 1.0</span>
+    <div class="case-study-content">
+      <h1>Enterprise Market Intelligence Copilot</h1>
+      <p class="case-sub">
+        A local-first LLM analyst that answers enterprise market questions mixing hard pipeline
+        numbers (TAM, SAM, MRR) with qualitative context on competitor moves and regulatory shifts —
+        no cloud APIs, everything runs on-device.
+        &nbsp;·&nbsp; <a href="https://github.com/HARDY1499/Enterprise-Market-Intelligence-Copilot-v2" target="_blank" rel="noopener">GitHub repo →</a>
+      </p>
+
+      <div class="case-facts">
+        <div class="fact">
+          <b>ReAct agent</b>
+          <span>LangGraph framework</span>
+        </div>
+        <div class="fact">
+          <b>2 tools</b>
+          <span>SQL gen + vector search</span>
+        </div>
+        <div class="fact">
+          <b>100% local</b>
+          <span>Ollama-served models</span>
+        </div>
       </div>
-    </div>
-    <div class="menu-item dropdown">
-      <span class="menu-title">File</span>
-      <div class="dropdown-content">
-        <a href="javascript:window.print()">Print Case Study</a>
-        <a href="mailto:your.email@example.com">Send Email</a>
+
+      <h2>Architecture</h2>
+      <ul>
+        <li><strong>Agent core:</strong> a LangGraph ReAct agent that decides per question whether to query structured data, search unstructured context, or chain both.</li>
+        <li><strong>Tool 1 — SQL generator</strong> over a SQLite schema holding the hard numbers: TAM, SAM, MRR, pipeline figures.</li>
+        <li><strong>Tool 2 — semantic search</strong> over a ChromaDB vector store (<code>all-MiniLM-L6-v2</code> embeddings) holding qualitative material on competitors and regulation.</li>
+        <li><strong>Serving:</strong> FastAPI deployment, models served locally via Ollama.</li>
+      </ul>
+
+      <h2>The debugging story: when the model avoids its own tools</h2>
+      <p>
+        v1 ran on Llama 3.1 (8B) and hallucinated numbers. Tracing the agent's behavior revealed
+        a <strong>tool-avoidance pattern</strong>: rather than calling the SQL tool, the model was
+        fabricating TAM and MRR totals directly in its answers. The fix wasn't a bigger prompt —
+        it was switching to Gemma, whose native function-calling made tool use the path of least
+        resistance. The made-up numbers stopped, and the agent began chaining SQL and vector
+        search reliably.
+      </p>
+
+      <div class="callout">
+        <p>
+          The lesson: LLM hallucination is often an <strong>interaction failure between model and
+          scaffolding</strong>, not raw model weakness. Diagnosing it means reading traces, not
+          just outputs.
+        </p>
       </div>
-    </div>
-    <div class="menu-item dropdown">
-      <span class="menu-title">View</span>
-      <div class="dropdown-content">
-        <a href="#" class="theme-select active" data-theme="green">Matrix Green (CRT)</a>
-        <a href="#" class="theme-select" data-theme-name="amber">Amber Phosphor</a>
-        <a href="#" class="theme-select" data-theme-name="classic">Classic Monochrome</a>
-        <hr>
-        <a href="#" id="menu-toggle-scanlines">Disable Scanlines</a>
+
+      <h2>Making local-first actually reproducible</h2>
+      <ul>
+        <li>Diagnosed a Metal Performance Shaders (MPS) deadlock in the HuggingFace embedding pipeline on Apple Silicon and pinned embeddings to a CPU backend — fixing the hang and making the FastAPI deployment reproducible across machines.</li>
+        <li>Moved prompt-level guardrails into the system structurally: the prebuilt ReAct node plus per-tool schema docstrings, rather than fragile instructions buried in a mega-prompt.</li>
+      </ul>
+
+      <h2>Tech stack</h2>
+      <p style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+        <span class="project-tag-chip">Python</span>
+        <span class="project-tag-chip">LangGraph</span>
+        <span class="project-tag-chip">Gemma / Llama 3.1</span>
+        <span class="project-tag-chip">Ollama</span>
+        <span class="project-tag-chip">ChromaDB</span>
+        <span class="project-tag-chip">FastAPI</span>
+        <span class="project-tag-chip">SQLite</span>
+      </p>
+
+      <div class="case-nav">
+        <a href="berlin-stgnn.html">← Prev: Berlin Traffic ST-GNN</a>
+        <a href="quizzler.html">Next: Quizzler →</a>
       </div>
-    </div>
-    <div class="system-time" id="menu-clock">12:00:00 PM</div>
-  </nav>
-
-  <main class="mac-window case container" style="max-width: 800px; margin: 60px auto 40px;">
-    <div class="mac-titlebar">
-      <button class="mac-close-btn" aria-label="Close" onclick="window.location.href='../index.html'"></button>
-      <div class="mac-titlebar-lines"></div>
-      <span class="mac-title">Case Study: Market Copilot</span>
-      <div class="mac-titlebar-lines"></div>
-    </div>
-    <div class="mac-content">
-  <a class="back" href="../index.html#projects">← back to projects</a>
-  <h1>Enterprise Market Intelligence Copilot</h1>
-  <p class="case-sub">
-    A local-first LLM analyst that answers enterprise market questions mixing hard pipeline
-    numbers (TAM, SAM, MRR) with qualitative context on competitor moves and regulatory shifts —
-    no cloud APIs, everything runs on-device.
-    &nbsp;·&nbsp; <a href="https://github.com/HARDY1499/Enterprise-Market-Intelligence-Copilot-v2" target="_blank" rel="noopener">GitHub repo →</a>
-  </p>
-
-  <div class="case-facts">
-    <div class="fact"><b>ReAct agent</b><span>LangGraph</span></div>
-    <div class="fact"><b>2 tools</b><span>SQL generator + semantic search</span></div>
-    <div class="fact"><b>100% local</b><span>Ollama-served models</span></div>
-  </div>
-
-  <h2>Architecture</h2>
-  <ul>
-    <li><strong>Agent core:</strong> a LangGraph ReAct agent that decides per question whether to query structured data, search unstructured context, or chain both.</li>
-    <li><strong>Tool 1 — SQL generator</strong> over a SQLite schema holding the hard numbers: TAM, SAM, MRR, pipeline figures.</li>
-    <li><strong>Tool 2 — semantic search</strong> over a ChromaDB vector store (<code>all-MiniLM-L6-v2</code> embeddings) holding qualitative material on competitors and regulation.</li>
-    <li><strong>Serving:</strong> FastAPI deployment, models served locally via Ollama.</li>
-  </ul>
-
-  <h2>The debugging story: when the model avoids its own tools</h2>
-  <p>
-    v1 ran on Llama 3.1 (8B) and hallucinated numbers. Tracing the agent's behavior revealed
-    a <strong>tool-avoidance pattern</strong>: rather than calling the SQL tool, the model was
-    fabricating TAM and MRR totals directly in its answers. The fix wasn't a bigger prompt —
-    it was switching to Gemma, whose native function-calling made tool use the path of least
-    resistance. The made-up numbers stopped, and the agent began chaining SQL and vector
-    search reliably.
-  </p>
-
-  <div class="callout">
-    <p>
-      The lesson: LLM hallucination is often an <strong>interaction failure between model and
-      scaffolding</strong>, not raw model weakness. Diagnosing it means reading traces, not
-      just outputs.
-    </p>
-  </div>
-
-  <h2>Making local-first actually reproducible</h2>
-  <ul>
-    <li>Diagnosed a Metal Performance Shaders (MPS) deadlock in the HuggingFace embedding pipeline on Apple Silicon and pinned embeddings to a CPU backend — fixing the hang and making the FastAPI deployment reproducible across machines.</li>
-    <li>Moved prompt-level guardrails into the system structurally: the prebuilt ReAct node plus per-tool schema docstrings, rather than fragile instructions buried in a mega-prompt.</li>
-  </ul>
-
-  <h2>Tech stack</h2>
-  <p>
-    <code>Python</code> <code>LangGraph</code> <code>Gemma / Llama 3.1</code> <code>Ollama</code>
-    <code>ChromaDB</code> <code>FastAPI</code> <code>SQLite</code>
-  </p>
-
-  <div class="case-nav">
-    <a href="berlin-stgnn.html">← Prev: Berlin Traffic ST-GNN</a>
-    <a href="quizzler.html">Next: Quizzler →</a>
-  </div>
     </div>
   </main>
-
-<footer>
-  <div class="container">© 2026 Harjasdeep Singh Allahabadia</div>
-</footer>
 
 </body>
 </html>

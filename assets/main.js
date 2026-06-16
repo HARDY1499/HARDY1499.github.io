@@ -1,706 +1,617 @@
 /* ============================================================
-   Harjasdeep Singh — Retro Macintosh Portfolio Javascript
-   Manages draggable windows, themes, dithering, and screensaver.
+   Harjasdeep Singh — Developer Analytics Dashboard JS
+   Governs SPA tab routing, AJAX case study fetching, searching,
+   theme toggles, clock loops, and interactive terminal consoles.
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize Systems
-  initClock();
-  initThemeAndScanlines();
-  initWindows();
-  initDithering();
-  initScreensaver();
+  initConsoleLogger();
+  initThemeEngine();
+  initTabRouting();
+  initClockLoop();
+  initProjectExplorer();
+  initInteractiveTerminal();
+  initLossCurveWidget();
 });
 
 /* ============================================================
-   1. SYSTEM CLOCK
+   1. LIVE CONSOLE LOG LOGGER (FOOTER DRAWER)
    ============================================================ */
-function initClock() {
-  const clockEl = document.getElementById("menu-clock");
-  if (!clockEl) return;
-  
-  const updateClock = () => {
+function initConsoleLogger() {
+  const drawer = document.getElementById("console-drawer");
+  const titlebar = document.getElementById("console-drawer-titlebar");
+  const logViewport = document.getElementById("console-log-viewport");
+
+  if (!drawer || !titlebar) return;
+
+  // Toggle Minimize/Expand console drawer
+  titlebar.addEventListener("click", () => {
+    const isMinimized = drawer.classList.toggle("minimized");
+    titlebar.setAttribute("aria-expanded", !isMinimized);
+    window.logConsoleEvent("SYS", `Console drawer ${isMinimized ? 'minimized' : 'expanded'}.`);
+  });
+
+  // Global logger function bound to window
+  window.logConsoleEvent = (tag, message) => {
+    if (!logViewport) return;
+
+    const entry = document.createElement("div");
+    entry.className = "log-entry animate-fade";
+
     const now = new Date();
-    clockEl.textContent = now.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+    const timeStr = now.toTimeString().split(' ')[0];
+
+    let tagClass = "sys";
+    if (tag.toLowerCase() === "data") tagClass = "data";
+    if (tag.toLowerCase() === "action") tagClass = "action";
+
+    entry.innerHTML = `
+      <span class="log-timestamp">[${timeStr}]</span>
+      <span class="log-tag ${tagClass}">[${tag.toUpperCase()}]</span>
+      <span class="log-message">${message}</span>
+    `;
+
+    logViewport.appendChild(entry);
+    logViewport.scrollTop = logViewport.scrollHeight;
+
+    // Prune logs if too long
+    while (logViewport.children.length > 50) {
+      logViewport.removeChild(logViewport.firstChild);
+    }
+  };
+}
+
+/* ============================================================
+   2. THEME ENGINE & ACCENTS
+   ============================================================ */
+function initThemeEngine() {
+  const themeBtn = document.getElementById("theme-toggle-btn");
+  const moonIcon = document.getElementById("theme-icon-moon");
+  const sunIcon = document.getElementById("theme-icon-sun");
+  const accentDots = document.querySelectorAll(".accent-dot");
+
+  // A. Light/Dark Toggle
+  let activeTheme = localStorage.getItem("dashboard-theme") || "dark";
+  
+  const setTheme = (theme) => {
+    document.body.setAttribute("data-theme", theme);
+    localStorage.setItem("dashboard-theme", theme);
+    activeTheme = theme;
+
+    if (theme === "light") {
+      if (moonIcon) moonIcon.style.display = "none";
+      if (sunIcon) sunIcon.style.display = "block";
+    } else {
+      if (moonIcon) moonIcon.style.display = "block";
+      if (sunIcon) sunIcon.style.display = "none";
+    }
+  };
+
+  // Set initial theme
+  setTheme(activeTheme);
+
+  if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
+      const nextTheme = activeTheme === "dark" ? "light" : "dark";
+      setTheme(nextTheme);
+      window.logConsoleEvent("SYS", `Theme status changed to: ${nextTheme.toUpperCase()}`);
+    });
+  }
+
+  // B. Accent Preset Dots
+  let activeAccent = localStorage.getItem("dashboard-accent") || "emerald";
+
+  const setAccent = (accent) => {
+    document.body.setAttribute("data-accent", accent);
+    localStorage.setItem("dashboard-accent", accent);
+    activeAccent = accent;
+
+    accentDots.forEach(dot => {
+      if (dot.getAttribute("data-accent") === accent) {
+        dot.classList.add("active");
+      } else {
+        dot.classList.remove("active");
+      }
     });
   };
-  
+
+  // Set initial accent
+  setAccent(activeAccent);
+
+  accentDots.forEach(dot => {
+    dot.addEventListener("click", () => {
+      const targetAccent = dot.getAttribute("data-accent");
+      setAccent(targetAccent);
+      window.logConsoleEvent("SYS", `Color preset accent updated to: ${targetAccent.toUpperCase()}`);
+    });
+  });
+}
+
+/* ============================================================
+   3. SPA TAB ROUTING
+   ============================================================ */
+function initTabRouting() {
+  const navButtons = document.querySelectorAll(".nav-btn");
+  const panelViews = document.querySelectorAll(".panel-view");
+  const headerTitle = document.getElementById("header-panel-title");
+
+  navButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetTab = btn.getAttribute("data-tab");
+      if (!targetTab) return;
+
+      // Update Nav Buttons active state
+      navButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // Update Views active state
+      panelViews.forEach(view => {
+        if (view.id === `panel-${targetTab}`) {
+          view.classList.add("active");
+        } else {
+          view.classList.remove("active");
+        }
+      });
+
+      // Update Top Header Banner title
+      let panelName = "Overview";
+      if (targetTab === "projects") panelName = "Projects Explorer";
+      if (targetTab === "experience") panelName = "Experience Logs";
+      if (targetTab === "skills") panelName = "Skills Matrix";
+      if (targetTab === "contact") panelName = "Contact Portal & Shell";
+
+      if (headerTitle) {
+        headerTitle.textContent = `System Panel // ${panelName}`;
+      }
+
+      window.logConsoleEvent("SYS", `Active workspace panel switched to: ${targetTab.toUpperCase()}`);
+    });
+  });
+
+  // Handle back triggers or other nav link redirects (e.g. view projects button in overview)
+  document.addEventListener("click", (e) => {
+    const trigger = e.target.closest("[data-go-tab]");
+    if (trigger) {
+      e.preventDefault();
+      const tabName = trigger.getAttribute("data-go-tab");
+      const navBtn = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+      if (navBtn) navBtn.click();
+    }
+  });
+}
+
+/* ============================================================
+   4. SYSTEM CLOCK LOOP
+   ============================================================ */
+function initClockLoop() {
+  const clockEl = document.getElementById("sidebar-time");
+  if (!clockEl) return;
+
+  const updateClock = () => {
+    const now = new Date();
+    clockEl.textContent = now.toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+  };
+
   updateClock();
   setInterval(updateClock, 1000);
 }
 
 /* ============================================================
-   2. THEME & SCANLINE MANAGEMENT
+   5. PROJECTS EXPLORER (FILTERING, SEARCH & CASE STUDIES)
    ============================================================ */
-let originalProfileImage = null; // Store original image data for re-dithering
+function initProjectExplorer() {
+  const grid = document.getElementById("project-dashboard-grid");
+  const searchInput = document.getElementById("project-search-input");
+  const filterChips = document.querySelectorAll("#tech-filter-chips .filter-chip");
+  const dialog = document.getElementById("case-study-slideover");
+  const dialogBody = document.getElementById("case-study-body");
 
-function initThemeAndScanlines() {
-  // Load saved preference or default to Green CRT
-  let theme = localStorage.getItem("retro-theme") || "green";
-  let scanlines = localStorage.getItem("retro-scanlines") !== "false"; // default true
-  
-  setTheme(theme);
-  setScanlines(scanlines);
-  
-  // Bind Theme Selection Click Events
-  document.querySelectorAll(".theme-select").forEach(el => {
-    // Set active link visually on load
-    const themeName = el.getAttribute("data-theme-name") || el.textContent.toLowerCase().includes("amber") ? "amber" : el.textContent.toLowerCase().includes("classic") ? "classic" : "green";
-    el.setAttribute("data-theme-name", themeName);
-    
-    if (themeName === theme) el.classList.add("active");
-    else el.classList.remove("active");
-    
-    el.addEventListener("click", (e) => {
-      e.preventDefault();
-      document.querySelectorAll(".theme-select").forEach(item => item.classList.remove("active"));
-      el.classList.add("active");
+  if (!grid) return;
+
+  // A. Render cards
+  const renderCards = () => {
+    // PROJECTS array comes from projects.js
+    if (typeof PROJECTS === "undefined") {
+      grid.innerHTML = `<p style='grid-column: 1/-1;'>Database connection failed. Projects array undefined.</p>`;
+      return;
+    }
+
+    grid.innerHTML = PROJECTS.map((proj, idx) => {
+      const metrics = (proj.metrics || [])
+        .map(m => `
+          <div class="project-metric-item">
+            <span class="project-metric-value">${m.value}</span>
+            <span class="project-metric-label">${m.label}</span>
+          </div>
+        `).join("");
+
+      const tags = (proj.tags || [])
+        .map(t => `<span class="project-tag-chip">${t}</span>`)
+        .join("");
+
+      const statusBadge = proj.status ? `<span class="project-status-badge">${proj.status}</span>` : "";
+
+      const inner = `
+        <div class="project-card-header">
+          <h3 class="project-card-title">${proj.title}</h3>
+          ${statusBadge}
+        </div>
+        <p class="project-card-headline">${proj.headline}</p>
+        <div class="project-card-metrics">
+          ${metrics}
+        </div>
+        <div class="project-card-tags">
+          ${tags}
+        </div>
+        <div class="project-card-footer">
+          ${proj.page ? `<span class="project-action-link">Explore case study <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>` : `<span class="project-action-link" style="opacity:0.5;cursor:default;">Local Project</span>`}
+          ${proj.github ? `<a class="project-repo-link" href="${proj.github}" target="_blank" rel="noopener" aria-label="GitHub Repository" onclick="event.stopPropagation();">
+            <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+          </a>` : ""}
+        </div>
+      `;
+
+      return `
+        <article class="dashboard-project-card" data-index="${idx}" data-tags='${JSON.stringify(proj.tags || [])}' tabindex="0">
+          ${inner}
+        </article>
+      `;
+    }).join("");
+  };
+
+  renderCards();
+
+  // B. Filtering logic
+  let activeTag = "all";
+  let activeQuery = "";
+
+  const applyFilters = () => {
+    const cards = grid.querySelectorAll(".dashboard-project-card");
+    let matchCount = 0;
+
+    cards.forEach(card => {
+      const idx = card.getAttribute("data-index");
+      const proj = PROJECTS[idx];
+      const tags = JSON.parse(card.getAttribute("data-tags"));
       
-      const targetTheme = el.getAttribute("data-theme-name");
-      setTheme(targetTheme);
+      const textToSearch = `${proj.title} ${proj.headline} ${tags.join(" ")}`.toLowerCase();
+      const matchesQuery = textToSearch.includes(activeQuery.toLowerCase());
+      
+      let matchesTag = false;
+      if (activeTag === "all") {
+        matchesTag = true;
+      } else if (activeTag === "Python") {
+        matchesTag = tags.includes("Python");
+      } else if (activeTag === "PyTorch") {
+        matchesTag = tags.includes("PyTorch") || tags.includes("PyTorch Geometric Temporal");
+      } else if (activeTag === "Optimization") {
+        matchesTag = tags.includes("SCIP (PySCIPopt)") || tags.includes("Column Generation") || tags.includes("MIP");
+      } else if (activeTag === "Web") {
+        matchesTag = tags.includes("TypeScript") || tags.includes("Supabase") || tags.includes("WebSockets");
+      }
+
+      if (matchesQuery && matchesTag) {
+        card.style.display = "flex";
+        matchCount++;
+      } else {
+        card.style.display = "none";
+      }
+    });
+
+    window.logConsoleEvent("DATA", `Projects search query: "${activeQuery}", tag: "${activeTag.toUpperCase()}". Matches: ${matchCount}/${cards.length}`);
+  };
+
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      activeQuery = e.target.value;
+      applyFilters();
+    });
+  }
+
+  filterChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      filterChips.forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      activeTag = chip.getAttribute("data-filter");
+      applyFilters();
     });
   });
-  
-  // Bind Scanlines Toggle Click Event
-  const scanlinesBtn = document.getElementById("menu-toggle-scanlines");
-  if (scanlinesBtn) {
-    const updateScanlineButtonText = (active) => {
-      scanlinesBtn.textContent = active ? "Disable Scanlines" : "Enable Scanlines";
-    };
-    updateScanlineButtonText(scanlines);
+
+  // C. Dynamic AJAX Case Study Injection
+  const loadCaseStudy = async (url) => {
+    if (!dialogBody || !dialog) return;
     
-    scanlinesBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const current = document.body.classList.contains("crt-active");
-      const next = !current;
-      setScanlines(next);
-      updateScanlineButtonText(next);
+    dialogBody.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; gap:16px;">
+        <span class="sys-heartbeat" style="width:24px; height:24px;"></span>
+        <p style="font-family:var(--font-mono); font-size:0.85rem; color:var(--text-muted)">Connecting gateway... Fetching case study segments...</p>
+      </div>
+    `;
+
+    dialog.showModal();
+    window.logConsoleEvent("SYS", `Initiating secure fetch request for case study: ${url}`);
+
+    try {
+      // Since pages are in projects/ folder (e.g. projects/eurowings.html), we fetch relative to site root
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const htmlText = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, "text/html");
+      
+      // Standalone files contain case study text inside <main class="mac-window case container"> .mac-content
+      const contentSource = doc.querySelector(".mac-content") || doc.querySelector("main") || doc.body;
+      
+      // Strip out navigation links that make no sense inside the overlay (like "back to projects")
+      const backLinks = contentSource.querySelectorAll(".back, .case-nav");
+      backLinks.forEach(el => el.remove());
+
+      // Inject case study structure
+      dialogBody.innerHTML = `<div class="case-study-content">${contentSource.innerHTML}</div>`;
+      window.logConsoleEvent("DATA", `Asynchronously loaded case study segments: ${url} (${htmlText.length} bytes processed)`);
+
+    } catch (err) {
+      console.error(err);
+      dialogBody.innerHTML = `
+        <div style="padding: 40px 20px; text-align:center;">
+          <h3 style="color:var(--accent); font-family:var(--font-heading); margin-bottom:12px;">Fetch Operation Failed</h3>
+          <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:20px;">Could not connect to target content. Standalone case study page may be missing or server has rejected the request.</p>
+          <code style="display:block; max-width:100%; word-break:break-all; padding:10px; background-color:var(--bg-base); border:1px solid var(--border-color);">${err.message}</code>
+        </div>
+      `;
+      window.logConsoleEvent("SYS", `[ERROR] Failed to fetch case study node: ${err.message}`);
+    }
+  };
+
+  // Click handler on project cards
+  grid.addEventListener("click", (e) => {
+    const card = e.target.closest(".dashboard-project-card");
+    if (!card) return;
+
+    // Check if clicked element was a hyperlink (e.g. GitHub icon link) - if so, let it act normally
+    if (e.target.closest("a")) return;
+
+    const idx = card.getAttribute("data-index");
+    const proj = PROJECTS[idx];
+
+    if (proj && proj.page) {
+      loadCaseStudy(proj.page);
+    } else {
+      window.logConsoleEvent("SYS", `Selected project "${proj.title}" does not contain separate case studies.`);
+    }
+  });
+
+  // Keyboard navigation click handler
+  grid.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const card = e.target.closest(".dashboard-project-card");
+      if (card) card.click();
+    }
+  });
+
+  // Light dismiss fallback selector for older browsers (from modern-web-guidance)
+  if (!('closedBy' in HTMLDialogElement.prototype)) {
+    dialog.addEventListener('click', (event) => {
+      if (event.target !== dialog) return;
+      const rect = dialog.getBoundingClientRect();
+      const isDialogContent = (
+        rect.top <= event.clientY &&
+        event.clientY <= rect.top + rect.height &&
+        rect.left <= event.clientX &&
+        event.clientX <= rect.left + rect.width
+      );
+      if (isDialogContent) return;
+      dialog.close();
+      window.logConsoleEvent("SYS", "Modal dismissed via backdrop click (fallback).");
     });
   }
-}
-
-function setTheme(theme) {
-  document.body.setAttribute("data-theme", theme);
-  localStorage.setItem("retro-theme", theme);
-  // Re-dither image to match theme color
-  if (originalProfileImage) {
-    applyDither(originalProfileImage);
-  }
-}
-
-function setScanlines(active) {
-  if (active) {
-    document.body.classList.add("crt-active");
-    const overlay = document.querySelector(".crt-overlay");
-    if (overlay) overlay.style.opacity = "";
-  } else {
-    document.body.classList.remove("crt-active");
-    const overlay = document.querySelector(".crt-overlay");
-    if (overlay) overlay.style.opacity = "0";
-  }
-  localStorage.setItem("retro-scanlines", active);
 }
 
 /* ============================================================
-   3. WINDOW MANAGEMENT (Drag, Drop, Focus, Close, Launch)
+   6. CONTACT TAB PORTAL & TERMINAL SHELL
    ============================================================ */
-let activeZIndex = 100;
+function initInteractiveTerminal() {
+  const terminalInput = document.getElementById("interactive-terminal-input");
+  const terminalBody = document.getElementById("interactive-terminal-body");
 
-function initWindows() {
-  const windows = document.querySelectorAll(".mac-window:not(.dialog-box)");
-  const desktop = document.getElementById("desktop");
-  
-  // Position windows randomly/tiled on desktop load to avoid stacking
-  const isDesktopViewport = window.innerWidth > 800;
-  if (isDesktopViewport) {
-    const defaultPositions = {
-      "window-about": { top: 60, left: 60 },
-      "window-projects": { top: 100, left: 340 },
-      "window-experience": { top: 320, left: 80 },
-      "window-skills": { top: 160, left: 740 },
-      "window-contact": { top: 400, left: 600 }
-    };
+  if (!terminalInput || !terminalBody) return;
 
-    windows.forEach(win => {
-      const id = win.id;
-      const pos = defaultPositions[id] || { top: 100, left: 100 };
-      
-      // Ensure positioning doesn't place windows off-screen on smaller desktop monitors
-      const maxLeft = window.innerWidth - win.offsetWidth - 20;
-      const maxTop = window.innerHeight - win.offsetHeight - 50;
-      
-      win.style.top = Math.max(40, Math.min(pos.top, maxTop > 40 ? maxTop : 40)) + "px";
-      win.style.left = Math.max(20, Math.min(pos.left, maxLeft > 20 ? maxLeft : 20)) + "px";
-    });
-  }
-
-  // Focus Window helper
-  const focusWindow = (win) => {
-    windows.forEach(w => w.classList.remove("active"));
-    win.classList.add("active");
-    activeZIndex += 2;
-    win.style.zIndex = activeZIndex;
+  const appendTerminalLine = (text, type = "") => {
+    const line = document.createElement("div");
+    line.className = `terminal-line ${type}`;
+    line.textContent = text;
+    terminalBody.appendChild(line);
+    terminalBody.scrollTop = terminalBody.scrollHeight;
   };
 
-  // Window Focus on Click
-  windows.forEach(win => {
-    win.addEventListener("mousedown", () => {
-      focusWindow(win);
-    });
-  });
-
-  // Make Titlebar Draggable
-  windows.forEach(win => {
-    const titlebar = win.querySelector(".mac-titlebar");
-    if (!titlebar) return;
-    
-    titlebar.addEventListener("mousedown", (e) => {
-      // Don't drag if close button clicked
-      if (e.target.classList.contains("mac-close-btn")) return;
-      if (window.innerWidth <= 800) return; // Disable drag on mobile
-
-      e.preventDefault();
-      focusWindow(win);
-      
-      let startX = e.clientX;
-      let startY = e.clientY;
-      let startLeft = parseInt(win.style.left, 10) || win.offsetLeft;
-      let startTop = parseInt(win.style.top, 10) || win.offsetTop;
-      
-      const onMouseMove = (moveEvent) => {
-        const deltaX = moveEvent.clientX - startX;
-        const deltaY = moveEvent.clientY - startY;
-        
-        // Calculate new position
-        let newLeft = startLeft + deltaX;
-        let newTop = startTop + deltaY;
-        
-        // Keep titlebar on screen
-        const minVisible = 40;
-        newLeft = Math.max(-win.offsetWidth + minVisible, Math.min(newLeft, window.innerWidth - minVisible));
-        newTop = Math.max(24, Math.min(newTop, window.innerHeight - minVisible)); // 24px is menu bar height
-        
-        win.style.left = newLeft + "px";
-        win.style.top = newTop + "px";
-      };
-      
-      const onMouseUp = () => {
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
-      };
-      
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
-    });
-  });
-
-  // Handle Close Button Click
-  windows.forEach(win => {
-    const closeBtn = win.querySelector(".mac-close-btn");
-    if (!closeBtn) return;
-    
-    closeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      win.classList.add("minimized");
-      
-      // Deselect desktop icons
-      document.querySelectorAll(".desktop-icon").forEach(icon => {
-        if (icon.getAttribute("data-target") === win.id) {
-          icon.classList.remove("selected");
-        }
-      });
-    });
-  });
-
-  // Handle Desktop Icons Click & Launch
-  const icons = document.querySelectorAll(".desktop-icon");
-  icons.forEach(icon => {
-    icon.addEventListener("click", (e) => {
-      e.stopPropagation();
-      icons.forEach(i => i.classList.remove("selected"));
-      icon.classList.add("selected");
-      
-      // Single click highlights. To open, click again or double click.
-      const targetId = icon.getAttribute("data-target");
-      const targetWin = document.getElementById(targetId);
-      if (targetWin) {
-        if (targetWin.classList.contains("minimized")) {
-          targetWin.classList.remove("minimized");
-        }
-        focusWindow(targetWin);
-      }
-    });
-
-    icon.addEventListener("dblclick", (e) => {
-      e.preventDefault();
-      const targetId = icon.getAttribute("data-target");
-      const targetWin = document.getElementById(targetId);
-      if (targetWin) {
-        targetWin.classList.remove("minimized");
-        focusWindow(targetWin);
-      }
-    });
-  });
-  
-  // Close dialog buttons
-  const aboutDialog = document.getElementById("about-dialog");
-  const aboutTrigger = document.getElementById("menu-about-trigger");
-  const closeAboutBtn = document.getElementById("close-about-dialog");
-  
-  if (aboutTrigger && aboutDialog) {
-    aboutTrigger.addEventListener("click", (e) => {
-      e.preventDefault();
-      aboutDialog.style.display = "block";
-    });
-  }
-  if (closeAboutBtn && aboutDialog) {
-    closeAboutBtn.addEventListener("click", () => {
-      aboutDialog.style.display = "none";
-    });
-  }
-
-  // Click on desktop to deselect icons
-  document.addEventListener("click", () => {
-    icons.forEach(i => i.classList.remove("selected"));
-  });
-
-  // Reset positions menu item
-  const resetBtn = document.getElementById("menu-reset-windows");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      windows.forEach(w => w.classList.remove("minimized"));
-      
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      
-      if (width > 800) {
-        const resetPositions = {
-          "window-about": { top: 60, left: 60 },
-          "window-projects": { top: 100, left: 340 },
-          "window-experience": { top: 320, left: 80 },
-          "window-skills": { top: 160, left: 740 },
-          "window-contact": { top: 400, left: 600 }
-        };
-        windows.forEach(win => {
-          const pos = resetPositions[win.id] || { top: 100, left: 100 };
-          win.style.top = pos.top + "px";
-          win.style.left = pos.left + "px";
-          focusWindow(win);
+  const commandRegistry = {
+    "/help": () => {
+      appendTerminalLine("Available interactive command directives:");
+      appendTerminalLine("  /projects      List all featured projects & navigate");
+      appendTerminalLine("  /experience    List professional positions & navigate");
+      appendTerminalLine("  /skills        List top technical skill matrix & navigate");
+      appendTerminalLine("  /contact       Print contact routes & focus text input");
+      appendTerminalLine("  /theme         Toggle between light and dark interface themes");
+      appendTerminalLine("  /accent <val>  Update color accent (emerald / indigo / amber)");
+      appendTerminalLine("  /weather       Retrieve real-time mock meteorology for Aachen, DE");
+      appendTerminalLine("  /clear         Flush console buffer lines");
+      appendTerminalLine("  /linkedin      Launch LinkedIn profile in new browser tab");
+      appendTerminalLine("  /github        Launch GitHub code profile in new browser tab");
+    },
+    "/projects": () => {
+      appendTerminalLine("Querying projects catalog... 4 records retrieved:", "success");
+      if (typeof PROJECTS !== "undefined") {
+        PROJECTS.forEach(p => {
+          appendTerminalLine(` -> [${p.title}] - ${p.headline.slice(0, 50)}...`);
         });
       }
-    });
-  }
-
-  // Support link triggers that open windows (like 'View projects')
-  document.querySelectorAll(".nav-window-trigger").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const targetId = btn.getAttribute("data-target");
-      const targetWin = document.getElementById(targetId);
-      if (targetWin) {
-        targetWin.classList.remove("minimized");
-        focusWindow(targetWin);
-        
-        // Scroll to it on mobile, or center it on desktop
-        if (window.innerWidth <= 800) {
-          targetWin.scrollIntoView({ behavior: "smooth" });
-        }
+      // Navigate Tab
+      const btn = document.querySelector('.nav-btn[data-tab="projects"]');
+      if (btn) btn.click();
+    },
+    "/experience": () => {
+      appendTerminalLine("Accessing corporate experience logs...", "success");
+      appendTerminalLine(" -> RWTH Aachen University (2025 - expected Sep 2027)");
+      appendTerminalLine(" -> Publicis Sapient - Associate Technology L1 (2022 - 2024)");
+      appendTerminalLine(" -> Publicis Sapient - Junior Associate Technology (2021 - 2022)");
+      const btn = document.querySelector('.nav-btn[data-tab="experience"]');
+      if (btn) btn.click();
+    },
+    "/skills": () => {
+      appendTerminalLine("Retrieving skills coefficient scores...", "success");
+      appendTerminalLine(" -> ML & AI: PyTorch, Graph Neural Nets, LLMs, LangGraph");
+      appendTerminalLine(" -> Optimization: MIP/LP Formulation, SCIP, Gurobi, Column Gen");
+      appendTerminalLine(" -> Programming: Python, pandas, C++, SQL, Java");
+      const btn = document.querySelector('.nav-btn[data-tab="skills"]');
+      if (btn) btn.click();
+    },
+    "/contact": () => {
+      appendTerminalLine("Contact Coordinates:", "success");
+      appendTerminalLine(" -> Email: harjasdeep.singh.allahabadia@rwth-aachen.de");
+      appendTerminalLine(" -> Location: Aachen, North Rhine-Westphalia, Germany");
+      appendTerminalLine("Locating entry fields... Form active.", "system");
+      
+      const formName = document.getElementById("contact-name");
+      if (formName) formName.focus();
+    },
+    "/clear": () => {
+      terminalBody.innerHTML = "";
+    },
+    "/weather": () => {
+      appendTerminalLine("Querying Aachen weather API...", "system");
+      setTimeout(() => {
+        appendTerminalLine("Current Aachen Meteorology: 14°C, light rain drizzle, wind 12 km/h NW. Typically Aachen.", "success");
+      }, 300);
+    },
+    "/theme": () => {
+      const themeBtn = document.getElementById("theme-toggle-btn");
+      if (themeBtn) themeBtn.click();
+      appendTerminalLine("System theme settings updated successfully.", "success");
+    },
+    "/accent": (args) => {
+      const target = args[0] ? args[0].toLowerCase() : "";
+      if (["emerald", "indigo", "amber"].includes(target)) {
+        const dot = document.querySelector(`.accent-dot[data-accent="${target}"]`);
+        if (dot) dot.click();
+        appendTerminalLine(`Workspace accent set to: ${target.toUpperCase()}`, "success");
+      } else {
+        appendTerminalLine("Invalid parameter. Try: /accent emerald | indigo | amber", "system");
       }
-    });
+    },
+    "/linkedin": () => {
+      appendTerminalLine("Opening LinkedIn profile...", "success");
+      window.open("https://linkedin.com/in/harjasdeep14", "_blank");
+    },
+    "/github": () => {
+      appendTerminalLine("Opening GitHub profile...", "success");
+      window.open("https://github.com/HARDY1499", "_blank");
+    }
+  };
+
+  terminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const rawVal = terminalInput.value.trim();
+      terminalInput.value = "";
+      if (!rawVal) return;
+
+      appendTerminalLine(`harjasdeep$ ${rawVal}`);
+      
+      const parts = rawVal.split(/\s+/);
+      const cmd = parts[0];
+      const args = parts.slice(1);
+
+      window.logConsoleEvent("ACTION", `Terminal command executed: "${cmd}"`);
+
+      if (commandRegistry[cmd]) {
+        commandRegistry[cmd](args);
+      } else {
+        appendTerminalLine(`bash: command not found: ${cmd}. Type /help for assistance.`, "system");
+      }
+    }
   });
+
+  // Handle contact form submit
+  window.handleFormSubmit = async () => {
+    const name = document.getElementById("contact-name").value;
+    const email = document.getElementById("contact-email").value;
+    const msg = document.getElementById("contact-message").value;
+    const accessKey = document.getElementById("web3forms-access-key").value;
+
+    appendTerminalLine(`Form submit request received from ${name}...`, "system");
+    window.logConsoleEvent("ACTION", `Contact form query submitted by ${name} (${email})`);
+
+    // Developer Mode simulation fallback if access key is not yet set
+    if (accessKey === "YOUR_ACCESS_KEY_HERE" || !accessKey) {
+      setTimeout(() => {
+        appendTerminalLine("[DEV MODE] Web3Forms Access Key is set to default placeholder.", "system");
+        appendTerminalLine("To enable real email forwarding, register at web3forms.com and paste your key in index.html.", "system");
+        appendTerminalLine("Data packet simulated successfully!", "success");
+        appendTerminalLine("Thank you for contacting me. I will reply shortly via your email.");
+        document.getElementById("portfolio-contact-form").reset();
+      }, 800);
+      return;
+    }
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          name: name,
+          email: email,
+          message: msg,
+          from_name: "Portfolio Command Center",
+          subject: `New Message from ${name} via Portfolio`
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        appendTerminalLine("Data packet transmitted successfully!", "success");
+        appendTerminalLine("Thank you for contacting me. I will reply shortly via your email.");
+        document.getElementById("portfolio-contact-form").reset();
+        window.logConsoleEvent("ACTION", "Email successfully forwarded to your account via Web3Forms.");
+      } else {
+        appendTerminalLine("Transmission failure: server rejected delivery key.", "system");
+        window.logConsoleEvent("SYS", `[ERROR] Web3Forms submission failed: ${result.message}`);
+      }
+    } catch (err) {
+      appendTerminalLine("Transmission failure: network offline or endpoint block.", "system");
+      window.logConsoleEvent("SYS", `[ERROR] Network error during form submit: ${err.message}`);
+    }
+  };
 }
 
 /* ============================================================
-   4. DYNAMIC PROFILE PHOTO 1-BIT DITHERING
+   7. INTERACTIVE LOSS CURVE NODE CLICKS
    ============================================================ */
-function initDithering() {
-  const img = document.querySelector(".hero-photo");
-  if (!img) return;
+function initLossCurveWidget() {
+  const dots = document.querySelectorAll(".chart-dot");
+  dots.forEach(dot => {
+    dot.addEventListener("click", () => {
+      const epoch = dot.getAttribute("data-epoch");
+      const loss = dot.getAttribute("data-val");
 
-  // Skip dithering and canvas filters for pre-made pixel art avatar.png to keep its original colors
-  if (img.src.includes("avatar.png")) {
-    return;
-  }
-
-  // Once image loads, grab original data and dither it
-  if (img.complete) {
-    processImage(img);
-  } else {
-    img.addEventListener("load", () => {
-      processImage(img);
+      window.logConsoleEvent("DATA", `Loss node clicked. Model state Epoch: ${epoch}, Validation Loss (L1): ${loss}`);
+      
+      const termBody = document.getElementById("interactive-terminal-body");
+      if (termBody) {
+        const line = document.createElement("div");
+        line.className = "terminal-line success";
+        line.textContent = `[PLOT ANALYTICS] Epoch: ${epoch} || Loss value: ${loss}`;
+        termBody.appendChild(line);
+        termBody.scrollTop = termBody.scrollHeight;
+      }
     });
-  }
-}
-
-function processImage(imgEl) {
-  // Draw to offscreen canvas to extract pixel data
-  const originalWidth = imgEl.naturalWidth || imgEl.width;
-  const originalHeight = imgEl.naturalHeight || imgEl.height;
-  
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  
-  // Downscale image to pixel art resolution (160x160)
-  const targetSize = 160;
-  canvas.width = targetSize;
-  canvas.height = targetSize;
-  
-  ctx.drawImage(imgEl, 0, 0, targetSize, targetSize);
-  
-  try {
-    originalProfileImage = ctx.getImageData(0, 0, targetSize, targetSize);
-    applyDither(originalProfileImage);
-  } catch (err) {
-    console.error("Canvas image dithering failed due to CORS or other error. Falling back.", err);
-  }
-}
-
-function applyDither(imageData) {
-  const imgEl = document.querySelector(".hero-photo");
-  if (!imgEl) return;
-  
-  const width = imageData.width;
-  const height = imageData.height;
-  
-  // Create output canvas
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  
-  // Create workspace image copy
-  const workData = new ImageData(new Uint8ClampedArray(imageData.data), width, height);
-  const data = workData.data;
-  
-  // Define active theme colors
-  const activeTheme = document.body.getAttribute("data-theme") || "green";
-  let fgColor, bgColor;
-  
-  if (activeTheme === "green") {
-    fgColor = [57, 255, 20]; // #39ff14 neon green
-    bgColor = [0, 0, 0]; // black
-  } else if (activeTheme === "amber") {
-    fgColor = [255, 176, 0]; // #ffb000 amber orange
-    bgColor = [11, 7, 0]; // deep dark brown-black
-  } else {
-    fgColor = [0, 0, 0]; // black
-    bgColor = [244, 244, 244]; // white
-  }
-  
-  // Check if image has transparent pixels
-  let hasTransparency = false;
-  for (let i = 3; i < data.length; i += 4) {
-    if (data[i] < 200) {
-      hasTransparency = true;
-      break;
-    }
-  }
-  
-  if (hasTransparency) {
-    // For transparent pixel art avatars, do NOT dither. Just tint them!
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-      const a = data[i + 3];
-      
-      // Preserve transparent background
-      if (a < 50) {
-        data[i + 3] = 0;
-        continue;
-      }
-      
-      const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-      const factor = luma / 255;
-      
-      if (activeTheme === "classic") {
-        // Map to 1-bit black and white
-        if (luma > 200) {
-          // Light pixels go to white
-          data[i] = 244;
-          data[i + 1] = 244;
-          data[i + 2] = 244;
-        } else {
-          // Dark pixels go to black
-          data[i] = 0;
-          data[i + 1] = 0;
-          data[i + 2] = 0;
-        }
-        data[i + 3] = 255;
-      } else {
-        // Map to CRT green/amber phosphor gradients
-        data[i]     = Math.round(bgColor[0] + (fgColor[0] - bgColor[0]) * factor);
-        data[i + 1] = Math.round(bgColor[1] + (fgColor[1] - bgColor[1]) * factor);
-        data[i + 2] = Math.round(bgColor[2] + (fgColor[2] - bgColor[2]) * factor);
-        data[i + 3] = 255;
-      }
-    }
-  } else {
-    // Standard ordered dithering for full photos
-    const bayerMatrix = [
-      [  1,  9,  3, 11 ],
-      [ 13,  5, 15,  7 ],
-      [  4, 12,  2, 10 ],
-      [ 16,  8, 14,  6 ]
-    ];
-    
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const idx = (y * width + x) * 4;
-        
-        const r = data[idx];
-        const g = data[idx + 1];
-        const b = data[idx + 2];
-        
-        // Calculate relative luminance
-        const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-        
-        // Normalize to 0-16
-        const threshold = (bayerMatrix[y % 4][x % 4] / 17) * 255;
-        
-        const color = luma > threshold ? fgColor : bgColor;
-        
-        data[idx]     = color[0];
-        data[idx + 1] = color[1];
-        data[idx + 2] = color[2];
-        data[idx + 3] = 255; // fully opaque
-      }
-    }
-  }
-  
-  ctx.putImageData(workData, 0, 0);
-  
-  // Update photo src dynamically
-  imgEl.src = canvas.toDataURL();
-}
-
-/* ============================================================
-   5. CLASSIC MACINTOSH SCREENSAVER
-   ============================================================ */
-let screensaverTimer = null;
-let screensaverActive = false;
-let screensaverAnimationId = null;
-
-// Pixel Maps for Sprite Drawing (1 represents pixel, 0 represents empty)
-const sprites = {
-  // Smiling Monitor (Generic pixel computer)
-  happyMonitor: [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,1,1,0,0,0,0,0,0,0,1,1,0,0,1],
-    [1,0,1,1,0,0,0,0,0,0,0,1,1,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1],
-    [1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0],
-    [0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0],
-    [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0]
-  ],
-  // Floppy Disk
-  floppy: [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
-    [1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1],
-    [1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1],
-    [1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1],
-    [1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
-    [1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],
-    [1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],
-    [1,0,1,0,0,0,0,1,1,0,0,0,0,1,0,1],
-    [1,0,1,0,0,0,0,1,1,0,0,0,0,1,0,1],
-    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-  ],
-  // Flying Toaster (Frame 1 - wings down)
-  toaster1: [
-    [0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],
-    [0,0,0,1,1,0,0,0,0,0,1,1,0,0,0],
-    [0,1,1,0,0,0,0,0,0,0,0,0,1,1,0],
-    [1,0,0,0,1,1,1,1,1,1,1,0,0,0,1],
-    [1,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
-    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
-    [1,0,1,0,0,1,1,1,1,1,0,0,1,0,1],
-    [1,0,1,0,1,0,0,0,0,0,1,0,1,0,1],
-    [1,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
-    [0,1,1,0,1,1,1,1,1,1,1,0,1,1,0],
-    [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
-    [0,0,0,0,1,1,1,0,1,1,1,0,0,0,0]
-  ],
-  // Flying Toaster (Frame 2 - wings up)
-  toaster2: [
-    [0,1,1,0,0,1,1,1,1,1,0,0,1,1,0],
-    [1,0,0,1,1,0,0,0,0,0,1,1,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,1,1,1,1,1,1,1,0,0,0,1],
-    [1,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
-    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
-    [1,0,1,0,0,1,1,1,1,1,0,0,1,0,1],
-    [1,0,1,0,1,0,0,0,0,0,1,0,1,0,1],
-    [1,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
-    [0,1,1,0,1,1,1,1,1,1,1,0,1,1,0],
-    [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
-    [0,0,0,0,1,1,1,0,1,1,1,0,0,0,0]
-  ]
-};
-
-function initScreensaver() {
-  const canvas = document.getElementById("screensaver-canvas");
-  if (!canvas) return;
-  
-  // Start Idle Timer tracking
-  resetIdleTimer();
-  
-  // Track user input to dismiss screensaver
-  const wakeUpEvents = ["mousemove", "mousedown", "keydown", "scroll", "touchstart"];
-  wakeUpEvents.forEach(evt => {
-    window.addEventListener(evt, () => {
-      if (screensaverActive) {
-        stopScreensaver();
-      } else {
-        resetIdleTimer();
-      }
-    }, { passive: true });
   });
-  
-  // Bind menu option
-  const menuTrigger = document.getElementById("menu-run-screensaver");
-  if (menuTrigger) {
-    menuTrigger.addEventListener("click", (e) => {
-      e.preventDefault();
-      startScreensaver();
-    });
-  }
-
-  // Handle Resize
-  window.addEventListener("resize", () => {
-    if (screensaverActive) {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-  });
-}
-
-function resetIdleTimer() {
-  if (screensaverActive) return;
-  
-  clearTimeout(screensaverTimer);
-  // Auto-activate screensaver after 30 seconds of inactivity
-  screensaverTimer = setTimeout(() => {
-    startScreensaver();
-  }, 30000);
-}
-
-function startScreensaver() {
-  const canvas = document.getElementById("screensaver-canvas");
-  if (!canvas) return;
-  
-  screensaverActive = true;
-  canvas.style.display = "block";
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  
-  // Create flying assets
-  const items = [];
-  const activeTheme = document.body.getAttribute("data-theme") || "green";
-  let color = "#39ff14";
-  if (activeTheme === "amber") color = "#ffb000";
-  if (activeTheme === "classic") color = "#ffffff"; // draw in white on black background screensaver
-  
-  const spriteTypes = ["happyMonitor", "floppy", "toaster"];
-  
-  // Add 8-12 floating items
-  const itemCount = 10;
-  for (let i = 0; i < itemCount; i++) {
-    const type = spriteTypes[Math.floor(Math.random() * spriteTypes.length)];
-    items.push({
-      type: type,
-      x: Math.random() * (canvas.width - 100) + 50,
-      y: Math.random() * (canvas.height - 100) + 50,
-      vx: (Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1),
-      vy: (Math.random() * 1.5 + 0.5) * (Math.random() > 0.5 ? 1 : -1),
-      scale: 3, // pixel scaling
-      animFrame: 0,
-      animSpeed: 0.15
-    });
-  }
-  
-  const ctx = canvas.getContext("2d");
-  
-  const drawPixelSprite = (spriteData, px, py, scale) => {
-    const rows = spriteData.length;
-    const cols = spriteData[0].length;
-    
-    ctx.fillStyle = color;
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        if (spriteData[r][c] === 1) {
-          ctx.fillRect(px + c * scale, py + r * scale, scale, scale);
-        }
-      }
-    }
-  };
-  
-  const tick = () => {
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw matrix rain or retro grids under the screensaver items
-    ctx.fillStyle = "rgba(0, 50, 0, 0.05)";
-    if (activeTheme === "amber") ctx.fillStyle = "rgba(50, 25, 0, 0.05)";
-    if (activeTheme === "classic") ctx.fillStyle = "rgba(25, 25, 25, 0.05)";
-    
-    // Update and draw items
-    items.forEach(item => {
-      item.x += item.vx;
-      item.y += item.vy;
-      
-      let spriteData;
-      if (item.type === "happyMonitor") {
-        spriteData = sprites.happyMonitor;
-      } else if (item.type === "floppy") {
-        spriteData = sprites.floppy;
-      } else {
-        // Toaster animation frames
-        item.animFrame += item.animSpeed;
-        spriteData = Math.floor(item.animFrame) % 2 === 0 ? sprites.toaster1 : sprites.toaster2;
-      }
-      
-      const sw = spriteData[0].length * item.scale;
-      const sh = spriteData.length * item.scale;
-      
-      // Boundary Collision Bounces
-      if (item.x <= 0 || item.x + sw >= canvas.width) {
-        item.vx *= -1;
-        item.x = Math.max(0, Math.min(item.x, canvas.width - sw));
-      }
-      if (item.y <= 0 || item.y + sh >= canvas.height) {
-        item.vy *= -1;
-        item.y = Math.max(0, Math.min(item.y, canvas.height - sh));
-      }
-      
-      drawPixelSprite(spriteData, item.x, item.y, item.scale);
-    });
-    
-    screensaverAnimationId = requestAnimationFrame(tick);
-  };
-  
-  tick();
-}
-
-function stopScreensaver() {
-  const canvas = document.getElementById("screensaver-canvas");
-  if (!canvas) return;
-  
-  screensaverActive = false;
-  canvas.style.display = "none";
-  cancelAnimationFrame(screensaverAnimationId);
-  resetIdleTimer();
 }

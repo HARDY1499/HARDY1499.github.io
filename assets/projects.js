@@ -69,24 +69,4 @@ const PROJECTS = [
   },
 ];
 
-/* Renders cards into #project-grid (no-op on case-study pages). */
-(function renderProjects() {
-  const grid = document.getElementById("project-grid");
-  if (!grid) return;
-  grid.innerHTML = PROJECTS.map((p) => {
-    const metrics = (p.metrics || [])
-      .map((m) => `<div class="metric"><b>${m.value}</b><span>${m.label}</span></div>`)
-      .join("");
-    const tags = (p.tags || []).map((t) => `<span class="tag">${t}</span>`).join("");
-    const status = p.status ? `<span class="status">${p.status}</span>` : "";
-    const inner = `
-      <div class="card-top"><h3>${p.title}</h3>${status}</div>
-      <p class="headline">${p.headline}</p>
-      <div class="metrics">${metrics}</div>
-      <div class="tags">${tags}</div>
-      ${p.page ? `<span class="card-link">Read case study =></span>` : ""}`;
-    return p.page
-      ? `<a class="project-card" href="${p.page}">${inner}</a>`
-      : `<div class="project-card">${inner}</div>`;
-  }).join("");
-})();
+/* PROJECTS array is exported globally and rendered dynamically by assets/main.js */

@@ -5,116 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spatio-Temporal Traffic Forecasting (ST-GNN) — Harjasdeep Singh</title>
   <meta name="description" content="A3T-GCN model forecasting hourly traffic speeds across 454 loop detectors in Berlin's open VMZ dataset." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/style.css" />
-  <script src="../assets/main.js"></script>
 </head>
-<body class="crt-active" data-theme="green">
+<body class="standalone-case-body" data-theme="dark" data-accent="emerald">
 
-  <!-- CRT Overlay for scanlines and phosphor glow -->
-  <div class="crt-overlay"></div>
+  <main class="standalone-case-container">
+    <a class="standalone-back-btn" href="../index.html">
+      <svg viewBox="0 0 24 24">
+        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+      </svg>
+      <span>Back to Command Center</span>
+    </a>
 
-  <!-- Retro System Menu Bar -->
-  <nav class="system-menu-bar">
-    <div class="menu-item dropdown">
-      <span class="menu-title">◆</span>
-      <div class="dropdown-content">
-        <a href="../index.html">Back to Desktop</a>
-        <hr>
-        <span class="dropdown-label">System 1.0</span>
+    <div class="case-study-content">
+      <h1>Spatio-Temporal Traffic Forecasting with Graph Neural Networks</h1>
+      <p class="case-sub">
+        Forecasting hourly traffic speeds across Berlin's loop-detector network with an attention-based
+        temporal graph convolutional network (A3T-GCN), built in PyTorch on the city's open VMZ dataset. <em>Ongoing.</em>
+        &nbsp;·&nbsp; <a href="https://github.com/HARDY1499/BerlinTrafficPrediction" target="_blank" rel="noopener">GitHub repo →</a>
+      </p>
+
+      <div class="case-facts">
+        <div class="fact">
+          <b>454</b>
+          <span>loop detectors</span>
+        </div>
+        <div class="fact">
+          <b>5,000+</b>
+          <span>monthly CSVs processed</span>
+        </div>
+        <div class="fact">
+          <b>3 / 6 / 12 h</b>
+          <span>forecast horizons</span>
+        </div>
+        <div class="fact">
+          <b>2 km</b>
+          <span>Gaussian edge threshold</span>
+        </div>
       </div>
-    </div>
-    <div class="menu-item dropdown">
-      <span class="menu-title">File</span>
-      <div class="dropdown-content">
-        <a href="javascript:window.print()">Print Case Study</a>
-        <a href="mailto:your.email@example.com">Send Email</a>
+
+      <h2>The problem</h2>
+      <p>
+        Traffic speed at one detector depends on what happened upstream an hour ago — the signal is
+        inherently both spatial and temporal. The project builds an A3T-GCN model to forecast hourly
+        speeds 3, 6, and 12 hours ahead across 454 detectors, benchmarked honestly against last-value,
+        historical-average, and per-node LSTM baselines, so any GNN gain is measured against the
+        strongest simple alternatives rather than a strawman.
+      </p>
+
+      <h2>Data pipeline: from 5,000+ raw CSVs to a clean tensor</h2>
+      <ul>
+        <li>Wrote the pipeline turning 5,000+ monthly CSVs into a <code>(T, N, F)</code> PyTorch tensor with a parallel validity mask.</li>
+        <li>Steps: quality filtering, short-gap forward-fill, seasonal-mean imputation, and cyclic time encoding — with the mask preserving which values are observed vs. imputed so the model never trains on fiction as if it were fact.</li>
+      </ul>
+
+      <div class="callout">
+        <p>
+          <strong>The bug worth telling:</strong> a silent extraction error had been reducing
+          a full year of usable data down to a single month — no exception, no warning, just a
+          quietly tiny dataset. Catching it required distrusting a pipeline that appeared to work.
+          It's the kind of failure that inflates validation metrics while gutting the model,
+          and the reason I now treat row counts as assertions, not log lines.
+        </p>
       </div>
-    </div>
-    <div class="menu-item dropdown">
-      <span class="menu-title">View</span>
-      <div class="dropdown-content">
-        <a href="#" class="theme-select active" data-theme="green">Matrix Green (CRT)</a>
-        <a href="#" class="theme-select" data-theme-name="amber">Amber Phosphor</a>
-        <a href="#" class="theme-select" data-theme-name="classic">Classic Monochrome</a>
-        <hr>
-        <a href="#" id="menu-toggle-scanlines">Disable Scanlines</a>
+
+      <h2>Building the spatial graph</h2>
+      <ul>
+        <li>Projected detectors into Berlin UTM with GeoPandas, computed pairwise distances with SciPy, and weighted edges with a Gaussian kernel thresholded at 2 km.</li>
+        <li><strong>A modeling decision backed by data:</strong> chose detector-level over pole-level nodes after a correlation study showed sibling detectors on the same pole carry independent direction and lane signal — aggregating them would have thrown away real information.</li>
+      </ul>
+
+      <h2>Tech stack</h2>
+      <p style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+        <span class="project-tag-chip">PyTorch</span>
+        <span class="project-tag-chip">PyTorch Geometric Temporal</span>
+        <span class="project-tag-chip">pandas</span>
+        <span class="project-tag-chip">GeoPandas</span>
+        <span class="project-tag-chip">SciPy</span>
+      </p>
+
+      <div class="case-nav">
+        <a href="eurowings.html">← Prev: Eurowings Scheduling</a>
+        <a href="market-copilot.html">Next: Market Intelligence Copilot →</a>
       </div>
-    </div>
-    <div class="system-time" id="menu-clock">12:00:00 PM</div>
-  </nav>
-
-  <main class="mac-window case container" style="max-width: 800px; margin: 60px auto 40px;">
-    <div class="mac-titlebar">
-      <button class="mac-close-btn" aria-label="Close" onclick="window.location.href='../index.html'"></button>
-      <div class="mac-titlebar-lines"></div>
-      <span class="mac-title">Case Study: Traffic Forecasting</span>
-      <div class="mac-titlebar-lines"></div>
-    </div>
-    <div class="mac-content">
-  <a class="back" href="../index.html#projects">← back to projects</a>
-  <h1>Spatio-Temporal Traffic Forecasting with Graph Neural Networks</h1>
-  <p class="case-sub">
-    Forecasting hourly traffic speeds across Berlin's loop-detector network with an attention-based
-    temporal graph convolutional network (A3T-GCN), built in PyTorch on the city's open VMZ dataset. <em>Ongoing.</em>
-    &nbsp;·&nbsp; <a href="https://github.com/HARDY1499/BerlinTrafficPrediction" target="_blank" rel="noopener">GitHub repo →</a>
-  </p>
-
-  <div class="case-facts">
-    <div class="fact"><b>454</b><span>loop detectors</span></div>
-    <div class="fact"><b>5,000+</b><span>monthly CSVs processed</span></div>
-    <div class="fact"><b>3 / 6 / 12 h</b><span>forecast horizons</span></div>
-    <div class="fact"><b>2 km</b><span>Gaussian-kernel edge threshold</span></div>
-  </div>
-
-  <h2>The problem</h2>
-  <p>
-    Traffic speed at one detector depends on what happened upstream an hour ago — the signal is
-    inherently both spatial and temporal. The project builds an A3T-GCN model to forecast hourly
-    speeds 3, 6, and 12 hours ahead across 454 detectors, benchmarked honestly against last-value,
-    historical-average, and per-node LSTM baselines, so any GNN gain is measured against the
-    strongest simple alternatives rather than a strawman.
-  </p>
-
-  <h2>Data pipeline: from 5,000+ raw CSVs to a clean tensor</h2>
-  <ul>
-    <li>Wrote the pipeline turning 5,000+ monthly CSVs into a <code>(T, N, F)</code> PyTorch tensor with a parallel validity mask.</li>
-    <li>Steps: quality filtering, short-gap forward-fill, seasonal-mean imputation, and cyclic time encoding — with the mask preserving which values are observed vs. imputed so the model never trains on fiction as if it were fact.</li>
-  </ul>
-
-  <div class="callout">
-    <p>
-      <strong>The bug worth telling:</strong> a silent extraction error had been reducing
-      a full year of usable data down to a single month — no exception, no warning, just a
-      quietly tiny dataset. Catching it required distrusting a pipeline that appeared to work.
-      It's the kind of failure that inflates validation metrics while gutting the model,
-      and the reason I now treat row counts as assertions, not log lines.
-    </p>
-  </div>
-
-  <h2>Building the spatial graph</h2>
-  <ul>
-    <li>Projected detectors into Berlin UTM with GeoPandas, computed pairwise distances with SciPy, and weighted edges with a Gaussian kernel thresholded at 2 km.</li>
-    <li><strong>A modeling decision backed by data:</strong> chose detector-level over pole-level nodes after a correlation study showed sibling detectors on the same pole carry independent direction and lane signal — aggregating them would have thrown away real information.</li>
-  </ul>
-
-  <h2>Tech stack</h2>
-  <p>
-    <code>PyTorch</code> <code>PyTorch Geometric Temporal</code> <code>pandas</code>
-    <code>GeoPandas</code> <code>SciPy</code>
-  </p>
-
-  <div class="case-nav">
-    <a href="eurowings.html">← Prev: Eurowings Scheduling</a>
-    <a href="market-copilot.html">Next: Market Intelligence Copilot →</a>
-  </div>
     </div>
   </main>
-
-<footer>
-  <div class="container">© 2026 Harjasdeep Singh Allahabadia</div>
-</footer>
 
 </body>
 </html>
