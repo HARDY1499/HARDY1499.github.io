@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MNL Assortment Optimization — MILP Reformulation Benchmark — Harjasdeep Singh</title>
+  <meta name="description" content="Benchmarking three MILP reformulations of the mixed-MNL assortment problem on computational tractability, in GAMSPy. RWTH Marketing Analytics module, supervised by Prof. Sven Müller." />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body class="standalone-case-body" data-theme="dark" data-accent="emerald">
+
+  <main class="standalone-case-container">
+    <a class="standalone-back-btn" href="../index.html">
+      <svg viewBox="0 0 24 24">
+        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+      </svg>
+      <span>Back to Command Center</span>
+    </a>
+
+    <div class="case-study-content">
+      <h1>Benchmarking MILP Reformulations of the MNL Assortment Problem</h1>
+      <p class="case-sub">
+        Comparing three linear/MIP reformulations of the mixed multinomial-logit (MNL) assortment
+        problem on computational tractability, implemented in GAMSPy. RWTH Marketing Analytics module
+        (M.Sc. Data Analytics &amp; Decision Science), supervised by Prof. Sven Müller. <em>Ongoing.</em>
+      </p>
+
+      <div class="case-facts">
+        <div class="fact">
+          <b>3</b>
+          <span>MILP reformulations compared</span>
+        </div>
+        <div class="fact">
+          <b>mixed-MNL</b>
+          <span>random-parameters logit</span>
+        </div>
+        <div class="fact">
+          <b>GAMSPy</b>
+          <span>MILP implementation</span>
+        </div>
+        <div class="fact">
+          <b>NP-hard</b>
+          <span>assortment problem</span>
+        </div>
+      </div>
+
+      <h2>The problem</h2>
+      <p>
+        Assortment optimization asks which subset of products to put on the shelf to maximize expected
+        revenue when customers choose according to a mixed multinomial-logit (random-parameters logit)
+        model. The problem is NP-hard, and the expected-revenue objective is nonlinear: each segment's
+        choice probability puts the offered product's attraction weight in the numerator and the sum
+        over the whole offered set in the denominator. That reciprocal structure has to be linearized
+        before the problem can be handed to a MILP solver, and <em>how</em> you linearize it changes how
+        hard the model is to solve.
+      </p>
+
+      <h2>Three reformulations, one problem</h2>
+      <ul>
+        <li><strong>Méndez-Díaz et al. (2014, <em>Discrete Applied Mathematics</em>):</strong> introduce a reciprocal variable, linearize the resulting bilinear term with McCormick inequalities, add valid inequalities, and solve by branch-and-cut.</li>
+        <li><strong>Haase &amp; Müller (2014, <em>EJOR</em>):</strong> a probability-space / constant-substitution reformulation that avoids the bilinear term entirely (originally single-segment, so a segment weight is added to compare fairly).</li>
+        <li><strong>Şen, Atamtürk &amp; Kaminsky (2018, <em>Operations Research</em>):</strong> the same MILP backbone as Méndez-Díaz, plus a conic reformulation and tighter, capacity-aware (conditional McCormick) bounds.</li>
+      </ul>
+
+      <h2>What I've built so far</h2>
+      <ul>
+        <li><strong>Unified notation (done):</strong> rewrote all three formulations — each from a different source with its own symbols and assumptions — into one consistent notation, delivered as a compiled LaTeX report.</li>
+        <li><strong>Linearization (done):</strong> derived the McCormick / big-M linearization of the bilinear reciprocal term that the Méndez-Díaz and Şen backbones share, and worked through how the valid inequalities and the conic / conditional-McCormick bounds tighten the LP relaxation.</li>
+        <li><strong>In progress:</strong> reproducing MNL choice probabilities on a small worked example, generating artificial instances to Şen's numerical-study design, and implementing all three models in GAMSPy to produce a like-for-like tractability comparison (root gap, end gap, solve time, branch-and-bound nodes).</li>
+      </ul>
+
+      <div class="callout">
+        <p>
+          <strong>Why it matters:</strong> the three formulations describe the same optimal assortment,
+          but a solver chews through them very differently — the whole point is to measure which is
+          cheapest to solve and how that cost scales with the number of products. The same model family
+          underpins recent work on when the simple revenue-ordered assortment heuristic is reliable, i.e.
+          when a fast shortcut suffices versus when the exact MILP is worth its cost.
+        </p>
+      </div>
+
+      <h2>Tech stack</h2>
+      <p style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+        <span class="project-tag-chip">Python</span>
+        <span class="project-tag-chip">GAMSPy</span>
+        <span class="project-tag-chip">MILP</span>
+        <span class="project-tag-chip">McCormick Linearization</span>
+        <span class="project-tag-chip">Operations Research</span>
+        <span class="project-tag-chip">LaTeX</span>
+      </p>
+
+      <div class="case-nav">
+        <a href="eurowings.html">← Prev: Eurowings Scheduling</a>
+        <a href="berlin-stgnn.html">Next: Berlin Traffic ST-GNN →</a>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

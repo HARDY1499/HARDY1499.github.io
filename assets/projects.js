@@ -27,6 +27,20 @@ const PROJECTS = [
     github: "",
   },
   {
+    title: "MNL Assortment Optimization — MILP Reformulation Benchmark",
+    status: "Ongoing",
+    headline:
+      "Benchmarking three MILP reformulations of the mixed-MNL assortment problem on computational tractability, using artificial data and GAMSPy. RWTH Marketing Analytics module (M.Sc. Data Analytics & Decision Science), supervised by Prof. Sven Müller.",
+    metrics: [
+      { value: "3", label: "MILP reformulations compared" },
+      { value: "mixed-MNL", label: "random-parameters logit" },
+      { value: "GAMSPy", label: "MILP implementation" },
+    ],
+    tags: ["Python", "GAMSPy", "MILP", "McCormick Linearization", "Operations Research", "LaTeX"],
+    page: "projects/assortment-mnl.html",
+    github: "",
+  },
+  {
     title: "Spatio-Temporal Traffic Forecasting (ST-GNN)",
     status: "Ongoing",
     headline:
